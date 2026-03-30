@@ -449,6 +449,16 @@
         body.theme-cartoon .main-btn { background: #aa5555; border-radius: 30px; border: 2px solid #ff9999; box-shadow: 4px 4px 0 #ff9999; }
         
         .player-item { padding: 8px; background: rgba(0,0,0,0.3); margin: 5px 0; border-radius: 12px; display: flex; justify-content: space-between; }
+        
+        .game-over-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .game-over-buttons .main-btn {
+            flex: 1;
+            margin-top: 0;
+        }
     </style>
 </head>
 <body class="theme-cinema">
@@ -599,7 +609,7 @@
 <div id="voteResultsPage" class="screen">
     <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">📊 نتيجة التصويت</h2>
     <div id="resultsSection"></div>
-    <button class="main-btn" id="continueBtn" onclick="processVoteResult()">متابعة</button>
+    <div id="gameOverButtons" class="game-over-buttons"></div>
 </div>
 
 <script>
@@ -651,7 +661,14 @@
     function navTo(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function showNotification(msg) { let n = document.createElement('div'); n.className = 'elimination-message'; n.innerHTML = msg; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
     function switchTheme(theme) { document.body.className = 'theme-' + theme; toggleMenu(); const quickIntro = document.getElementById('quickIntro'); quickIntro.classList.add('show'); setTimeout(() => quickIntro.classList.remove('show'), 500); }
-    function resetGameToHome() { if(timerInterval) clearInterval(timerInterval); if(currentRoomId) leaveOnlineRoom(); navTo('homeScreen'); gameMode = null; }
+    function resetGameToHome() { 
+        if(timerInterval) clearInterval(timerInterval); 
+        if(currentRoomId) leaveOnlineRoom(); 
+        navTo('homeScreen'); 
+        gameMode = null; 
+        gameActive = true;
+        isVotingActive = false;
+    }
     function goHome() { resetGameToHome(); }
     function copyRoomCode() { const code = document.getElementById('roomCodeText').innerText; navigator.clipboard.writeText(code); showNotification("✅ تم نسخ الكود: " + code); }
     
@@ -773,8 +790,18 @@
                 showOnlineRoleScreen();
             }
             
-            if(room.voteTrigger && !isVotingActive) { isVotingActive = true; startVotingPhase(); }
-            if(room.voteResults) { showVoteResultsScreen(room.voteResults); }
+            if(room.voteTrigger && !isVotingActive) { 
+                isVotingActive = true; 
+                startVotingPhase(); 
+                db.ref('rooms/' + currentRoomId + '/voteTrigger').remove();
+            }
+            if(room.voteResults) { 
+                showVoteResultsScreen(room.voteResults); 
+            }
+            if(room.nextRound) {
+                continueAfterVote();
+                db.ref('rooms/' + currentRoomId + '/nextRound').remove();
+            }
         });
     }
     
@@ -784,6 +811,11 @@
         let randomLocation = locationList[Math.floor(Math.random() * locationList.length)];
         let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
         db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy, ready: [] });
+        
+        // عد تنازلي 3 ثواني
+        let count = 3;
+        const overlay = document.createElement('div'); overlay.className = 'countdown-overlay'; overlay.innerText = count; document.body.appendChild(overlay);
+        const interval = setInterval(() => { count--; if(count <= 0) { clearInterval(interval); overlay.remove(); } else overlay.innerText = count; }, 1000);
     }
     
     function showOnlineRoleScreen() {
@@ -866,12 +898,18 @@
     
     function triggerVote() {
         if(timerInterval) clearInterval(timerInterval);
-        if(gameMode === 'online') { db.ref('rooms/' + currentRoomId).update({ voteTrigger: true }); }
-        else { startVotingPhase(); }
+        if(gameMode === 'online') { 
+            db.ref('rooms/' + currentRoomId).update({ voteTrigger: true }); 
+        }
+        else { 
+            startVotingPhase(); 
+        }
     }
     
     function startVotingPhase() {
-        votes = {}; voteOrder = [...activePlayers]; currentVoterIndex = 0;
+        votes = {}; 
+        voteOrder = [...activePlayers]; 
+        currentVoterIndex = 0;
         showNextVoter();
     }
     
@@ -891,23 +929,134 @@
         Object.values(votes).forEach(v => voteCount[v] = (voteCount[v] || 0) + 1);
         let maxVotes = 0, accused = null;
         for(let [player, count] of Object.entries(voteCount)) if(count > maxVotes) { maxVotes = count; accused = player; }
+        
         let accusedIndex = activePlayers.indexOf(accused);
         let currentSpy = (gameMode === 'offline') ? spyIndex : onlineSpyIndex;
         let isSpy = (accusedIndex === currentSpy);
-        let resultMsg = isSpy ? `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!` : `❌ تم اتهام ${accused} (بريء)! الجاسوس ينجو!`;
+        
+        let resultMsg, gameWinner = null;
+        
+        if(isSpy) {
+            resultMsg = `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!`;
+            gameWinner = 'agents';
+        } else {
+            // إزالة اللاعب المتهم
+            activePlayers = activePlayers.filter(p => p !== accused);
+            
+            // التحقق من فوز الجاسوس: إذا تبقى لاعب واحد فقط مع الجاسوس
+            let currentSpyPlayer = (gameMode === 'offline') ? players[spyIndex] : onlinePlayers[onlineSpyIndex];
+            let isSpyStillInGame = activePlayers.includes(currentSpyPlayer);
+            
+            if(activePlayers.length <= 2 && isSpyStillInGame) {
+                resultMsg = `❌ تم اتهام ${accused} (بريء)! تبقى ${activePlayers.length} لاعبين مع الجاسوس! الجاسوس يفوز!`;
+                gameWinner = 'spy';
+            } else {
+                resultMsg = `❌ تم اتهام ${accused} (بريء)! تم إقصاء ${accused}. تستمر اللعبة مع ${activePlayers.length} لاعبين.`;
+                gameWinner = 'continue';
+            }
+        }
+        
         document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3>${Object.entries(voteCount).map(([player, count]) => `<div class="vote-result-row"><span>${player}</span><span class="vote-count">${count} صوت</span></div>`).join('')}<hr><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${accused}</h3><p>${resultMsg}</p></div></div>`;
-        if(gameMode === 'online') db.ref('rooms/' + currentRoomId).update({ voteResults: { accused: accused, isSpy: isSpy, resultMsg: resultMsg } });
+        
+        // عرض أزرار مناسبة حسب نهاية اللعبة أو الاستمرار
+        const buttonsDiv = document.getElementById('gameOverButtons');
+        if(gameWinner === 'agents' || gameWinner === 'spy') {
+            buttonsDiv.innerHTML = `
+                <button class="main-btn" onclick="resetGameToHome()">🏠 الرئيسية</button>
+                <button class="main-btn" onclick="playAgain()">🔄 لعب مرة أخرى</button>
+            `;
+        } else {
+            buttonsDiv.innerHTML = `<button class="main-btn" onclick="continueAfterVote()">▶️ متابعة الجولة التالية</button>`;
+        }
+        
+        if(gameMode === 'online') {
+            db.ref('rooms/' + currentRoomId).update({ voteResults: { accused: accused, isSpy: isSpy, resultMsg: resultMsg, gameWinner: gameWinner, activePlayers: activePlayers } });
+        }
         navTo('voteResultsPage');
+    }
+    
+    function playAgain() {
+        if(gameMode === 'offline') {
+            // إعادة تعيين اللعبة مع نفس اللاعبين
+            activePlayers = [...players];
+            const locationList = MAP_DATA[selectedMapKey];
+            currentLocation = locationList[Math.floor(Math.random() * locationList.length)];
+            spyIndex = Math.floor(Math.random() * players.length);
+            currentPlayerIndex = 0;
+            hasSeenRole = false;
+            gameActive = true;
+            showOfflineRoleScreen();
+        } else if(gameMode === 'online' && isHost) {
+            // إعادة تعيين اللعبة أونلاين
+            let locationList = MAP_DATA[selectedMapKey || 'public'];
+            let randomLocation = locationList[Math.floor(Math.random() * locationList.length)];
+            let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
+            db.ref('rooms/' + currentRoomId).update({ 
+                status: "playing", 
+                location: randomLocation, 
+                spyIndex: randomSpy, 
+                ready: [],
+                voteResults: null,
+                countdownStarted: null
+            });
+            gameStarted = false;
+            isVotingActive = false;
+            onlineLocation = randomLocation;
+            onlineSpyIndex = randomSpy;
+            showOnlineRoleScreen();
+        }
+    }
+    
+    function continueAfterVote() {
+        // التحقق من فوز الجاسوس مرة أخرى للتأكد
+        let currentSpyPlayer = (gameMode === 'offline') ? players[spyIndex] : onlinePlayers[onlineSpyIndex];
+        let isSpyStillInGame = activePlayers.includes(currentSpyPlayer);
+        
+        if(activePlayers.length <= 2 && isSpyStillInGame) {
+            showNotification("🎉 الجاسوس يفوز! تم القبض على الجميع!");
+            resetGameToHome();
+            return;
+        }
+        
+        if(gameMode === 'offline') {
+            // استئناف اللعبة مع اللاعبين المتبقين
+            navTo('gameplay');
+            updatePlayersListDisplay(activePlayers);
+            startTimer(selectedTime);
+        } else if(gameMode === 'online') {
+            db.ref('rooms/' + currentRoomId).update({ nextRound: true });
+            navTo('gameplay');
+            updatePlayersListDisplay(activePlayers);
+            startTimer(300);
+        }
+        isVotingActive = false;
     }
     
     function showVoteResultsScreen(data) {
         document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${data.accused}</h3><p>${data.resultMsg}</p></div></div>`;
+        
+        if(data.activePlayers) {
+            activePlayers = data.activePlayers;
+        }
+        
+        const buttonsDiv = document.getElementById('gameOverButtons');
+        if(data.gameWinner === 'agents' || data.gameWinner === 'spy') {
+            buttonsDiv.innerHTML = `
+                <button class="main-btn" onclick="resetGameToHome()">🏠 الرئيسية</button>
+                <button class="main-btn" onclick="playAgain()">🔄 لعب مرة أخرى</button>
+            `;
+        } else {
+            buttonsDiv.innerHTML = `<button class="main-btn" onclick="continueAfterVote()">▶️ متابعة الجولة التالية</button>`;
+        }
+        
         navTo('voteResultsPage');
     }
     
-    function processVoteResult() { resetGameToHome(); }
+    function processVoteResult() { 
+        // تم الاستغناء عن هذه الدالة لصالح continueAfterVote و playAgain
+    }
     
-    function leaveOnlineRoom() { if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); currentRoomId = null; navTo('homeScreen'); }
+    function leaveOnlineRoom() { if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); currentRoomId = null; navTo('homeScreen'); gameStarted = false; isVotingActive = false; }
     
     // ربط الدوال
     window.attachPressEvents = attachPressEvents;
@@ -932,6 +1081,8 @@
     window.addPlayer = addPlayer;
     window.copyRoomCode = copyRoomCode;
     window.navTo = navTo;
+    window.playAgain = playAgain;
+    window.continueAfterVote = continueAfterVote;
 </script>
 
 <div id="intro" style="position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: introFadeOut 0.5s forwards; animation-delay: 3.5s;">
