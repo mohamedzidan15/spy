@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SPY | الجاسوس - لعبة متعددة اللاعبين</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .header {
+            text-align: center;
+            padding: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd93d;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 24px;
+            margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn {
+            background: #ffd93d;
+            color: #1a1a2e;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 1rem;
+            margin: 10px 0;
+            text-align: right;
+        }
+        .room-code {
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 5px;
+            background: #ffd93d;
+            color: #1a1a2e;
+            padding: 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .players-list {
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .player-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        .spy-badge { color: #ff6b6b; font-weight: bold; }
+        .timer { font-size: 3rem; text-align: center; font-family: monospace; margin: 20px 0; }
+        .role-card {
+            background: rgba(0,0,0,0.8);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .role-card:active { transform: scale(0.98); }
+        .hidden-content { display: none; }
+        .role-card.show .hidden-content { display: block; }
+        .role-card.show .front-content { display: none; }
+        .vote-option {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 50px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #ffd93d;
+            color: #1a1a2e;
+            padding: 15px;
+            border-radius: 50px;
+            text-align: center;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .location-name { font-size: 1.5rem; color: #ffd93d; margin-top: 10px; }
+        .inline-icon { margin-left: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- شاشة البداية -->
+    <div id="homeScreen" class="screen active">
+        <div class="header">🕵️ SPY | الجاسوس</div>
+        <div class="card">
+            <button class="btn" onclick="showCreateRoom()">➕ إنشاء غرفة جديدة</button>
+            <button class="btn btn-secondary" onclick="showJoinRoom()">🔗 الانضمام إلى غرفة</button>
+        </div>
+    </div>
+
+    <!-- شاشة إنشاء غرفة -->
+    <div id="createScreen" class="screen">
+        <div class="header">🎮 إنشاء غرفة</div>
+        <div class="card">
+            <input type="text" id="hostName" placeholder="أدخل اسمك" value="قائد">
+            <button class="btn" onclick="createRoom()">🚀 إنشاء الغرفة</button>
+            <button class="btn btn-secondary" onclick="backToHome()">↩️ رجوع</button>
+        </div>
+    </div>
+
+    <!-- شاشة الانضمام -->
+    <div id="joinScreen" class="screen">
+        <div class="header">🔗 الانضمام إلى غرفة</div>
+        <div class="card">
+            <input type="text" id="joinRoomCode" placeholder="كود الغرفة (مثال: ABC123)" maxlength="6" style="text-transform:uppercase">
+            <input type="text" id="joinName" placeholder="أدخل اسمك">
+            <button class="btn" onclick="joinRoom()">✅ انضمام</button>
+            <button class="btn btn-secondary" onclick="backToHome()">↩️ رجوع</button>
+        </div>
+    </div>
+
+    <!-- شاشة انتظار الغرفة -->
+    <div id="waitingScreen" class="screen">
+        <div class="header">🕒 انتظار اللاعبين</div>
+        <div class="card">
+            <div style="text-align:center; margin-bottom:20px">
+                <div style="font-size:0.8rem">كود الغرفة</div>
+                <div class="room-code" id="displayRoomCode">-----</div>
+            </div>
+            <div class="players-list" id="waitingPlayersList"></div>
+            <button class="btn" id="startGameBtn" style="display:none" onclick="startGame()">🎯 بدء اللعبة</button>
+            <button class="btn btn-secondary" onclick="leaveRoom()">🚪 مغادرة الغرفة</button>
+        </div>
+    </div>
+
+    <!-- شاشة توزيع الأدوار -->
+    <div id="rolesScreen" class="screen">
+        <div class="header" id="rolePlayerName"></div>
+        <div class="card" id="roleCardContainer">
+            <div class="role-card" id="roleCard" onclick="revealRole()">
+                <div class="front-content">
+                    <i class="fas fa-fingerprint" style="font-size: 4rem;"></i>
+                    <p>👆 اضغط لرؤية دورك</p>
+                </div>
+                <div class="hidden-content" id="roleHiddenContent">
+                    <i class="fas fa-user-secret" style="font-size: 3rem;"></i>
+                    <div id="roleText"></div>
+                </div>
+            </div>
+        </div>
+        <button class="btn" id="nextRoleBtn" style="display:none" onclick="nextPlayerRole()">⏩ التالي</button>
+    </div>
+
+    <!-- شاشة اللعب والنقاش -->
+    <div id="gameplayScreen" class="screen">
+        <div class="header">💬 وقت النقاش</div>
+        <div class="timer" id="gameTimer">05:00</div>
+        <div class="players-list">
+            <h3>👥 اللاعبون المتبقون</h3>
+            <div id="gamePlayersList"></div>
+        </div>
+        <button class="btn" id="voteBtn" onclick="startVoting()">🗳️ التصويت على الجاسوس</button>
+    </div>
+
+    <!-- شاشة التصويت -->
+    <div id="voteScreen" class="screen">
+        <div class="header">🗳️ التصويت</div>
+        <div class="card" id="voteContainer"></div>
+    </div>
+
+    <!-- شاشة النتيجة -->
+    <div id="resultScreen" class="screen">
+        <div class="header" id="resultTitle"></div>
+        <div class="card" id="resultMessage"></div>
+        <button class="btn" onclick="backToHome()">🏠 العودة للرئيسية</button>
+    </div>
+</div>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyAAAYnRPWgzCuZxt99uvx2BA90dDGwaC7c",
+        authDomain: "spy1-d766d.firebaseapp.com",
+        databaseURL: "https://spy1-d766d-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "spy1-d766d",
+        storageBucket: "spy1-d766d.firebasestorage.app",
+        messagingSenderId: "318881354838",
+        appId: "1:318881354838:web:00db6be734e40cfeed57f7"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // متغيرات اللعبة
+    let currentRoomId = null;
+    let currentPlayerName = null;
+    let isHost = false;
+    let playersList = [];
+    let spyIndex = -1;
+    let currentLocation = "";
+    let currentRoleIndex = 0;
+    let gameActive = true;
+    let timerInterval = null;
+    let votes = {};
+    let currentVoterIndex = 0;
+    let voteOrder = [];
+
+    // قائمة المواقع
+    const LOCATIONS = ["مطار", "بنك", "مطعم", "سينما", "مستشفى", "مدرسة", "متحف", "مركز تسوق", "ملعب", "مقهى", "مكتبة", "نادي رياضي", "حديقة", "مسرح", "شاطئ"];
+
+    // دوال مساعدة
+    function showNotification(msg) {
+        let notif = document.createElement('div');
+        notif.className = 'notification';
+        notif.innerText = msg;
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 3000);
+    }
+
+    function backToHome() {
+        if (currentRoomId) leaveRoom();
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('homeScreen').classList.add('active');
+        currentRoomId = null;
+    }
+
+    function showCreateRoom() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('createScreen').classList.add('active'); }
+    function showJoinRoom() { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById('joinScreen').classList.add('active'); }
+
+    // إنشاء غرفة جديدة
+    function createRoom() {
+        let name = document.getElementById('hostName').value.trim();
+        if (!name) { showNotification("يرجى إدخال اسمك"); return; }
+        currentPlayerName = name;
+        currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        isHost = true;
+        
+        let roomData = {
+            players: [name],
+            host: name,
+            status: "waiting",
+            createdAt: Date.now()
+        };
+        db.ref('rooms/' + currentRoomId).set(roomData).then(() => {
+            localStorage.setItem('spyRoom', currentRoomId);
+            localStorage.setItem('spyName', name);
+            listenToRoom();
+            showWaitingScreen();
+        }).catch(e => showNotification("خطأ: " + e.message));
+    }
+
+    // الانضمام لغرفة
+    function joinRoom() {
+        let code = document.getElementById('joinRoomCode').value.trim().toUpperCase();
+        let name = document.getElementById('joinName').value.trim();
+        if (!code || !name) { showNotification("يرجى إدخال الكود والاسم"); return; }
+        
+        db.ref('rooms/' + code).once('value', (snap) => {
+            if (!snap.exists()) { showNotification("الغرفة غير موجودة"); return; }
+            let room = snap.val();
+            if (room.status !== "waiting") { showNotification("اللعبة بدأت بالفعل"); return; }
+            if (room.players.includes(name)) { showNotification("هذا الاسم موجود بالفعل"); return; }
+            
+            room.players.push(name);
+            db.ref('rooms/' + code).update({ players: room.players }).then(() => {
+                currentRoomId = code;
+                currentPlayerName = name;
+                isHost = false;
+                localStorage.setItem('spyRoom', code);
+                localStorage.setItem('spyName', name);
+                listenToRoom();
+                showWaitingScreen();
+            });
+        });
+    }
+
+    function showWaitingScreen() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('waitingScreen').classList.add('active');
+        document.getElementById('displayRoomCode').innerText = currentRoomId;
+    }
+
+    function listenToRoom() {
+        db.ref('rooms/' + currentRoomId).on('value', (snap) => {
+            let room = snap.val();
+            if (!room) return;
+            playersList = room.players || [];
+            updateWaitingUI(room);
+            
+            if (room.status === "playing" && document.getElementById('waitingScreen').classList.contains('active')) {
+                startGameFromRoom(room);
+            }
+        });
+    }
+
+    function updateWaitingUI(room) {
+        let container = document.getElementById('waitingPlayersList');
+        container.innerHTML = "<h3>اللاعبون:</h3>";
+        playersList.forEach(p => {
+            let div = document.createElement('div');
+            div.className = 'player-item';
+            div.innerHTML = `<span>${p}</span>${p === room.host ? ' 👑' : ''}`;
+            container.appendChild(div);
+        });
+        
+        let startBtn = document.getElementById('startGameBtn');
+        if (isHost && playersList.length >= 3) startBtn.style.display = 'block';
+        else startBtn.style.display = 'none';
+    }
+
+    function startGame() {
+        if (!isHost) return;
+        let randomLocation = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
+        let randomSpy = Math.floor(Math.random() * playersList.length);
+        
+        let gameData = {
+            status: "playing",
+            location: randomLocation,
+            spyIndex: randomSpy,
+            activePlayers: playersList,
+            eliminated: [],
+            currentTurn: 0,
+            gameOver: false
+        };
+        db.ref('rooms/' + currentRoomId).update(gameData);
+    }
+
+    function startGameFromRoom(room) {
+        currentLocation = room.location;
+        spyIndex = room.spyIndex;
+        gameActive = true;
+        currentRoleIndex = 0;
+        showRoleScreen();
+    }
+
+    function showRoleScreen() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('rolesScreen').classList.add('active');
+        document.getElementById('nextRoleBtn').style.display = 'none';
+        document.getElementById('roleCard').classList.remove('show');
+        
+        let currentPlayer = playersList[currentRoleIndex];
+        document.getElementById('rolePlayerName').innerText = `🎭 ${currentPlayer}`;
+        document.getElementById('roleHiddenContent').innerHTML = currentRoleIndex === spyIndex ? 
+            `<i class="fas fa-user-secret" style="font-size:3rem; color:#ff6b6b"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان، حاول اكتشافه!</p>` :
+            `<i class="fas fa-map-marker-alt" style="font-size:3rem; color:#ffd93d"></i><h3>الموقع السري:</h3><div class="location-name">📍 ${currentLocation}</div>`;
+    }
+
+    function revealRole() {
+        let card = document.getElementById('roleCard');
+        card.classList.add('show');
+        document.getElementById('nextRoleBtn').style.display = 'block';
+    }
+
+    function nextPlayerRole() {
+        currentRoleIndex++;
+        if (currentRoleIndex < playersList.length) {
+            showRoleScreen();
+        } else {
+            startGameplay();
+        }
+    }
+
+    function startGameplay() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('gameplayScreen').classList.add('active');
+        updateGamePlayersList();
+        startTimer(300);
+    }
+
+    function updateGamePlayersList() {
+        let container = document.getElementById('gamePlayersList');
+        container.innerHTML = playersList.map(p => `<div class="player-item">🎭 ${p}</div>`).join('');
+    }
+
+    function startTimer(seconds) {
+        if (timerInterval) clearInterval(timerInterval);
+        let remaining = seconds;
+        let timerEl = document.getElementById('gameTimer');
+        function update() {
+            let m = Math.floor(remaining / 60);
+            let s = remaining % 60;
+            timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        update();
+        timerInterval = setInterval(() => {
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                startVoting();
+            } else {
+                remaining--;
+                update();
+            }
+        }, 1000);
+    }
+
+    function startVoting() {
+        if (timerInterval) clearInterval(timerInterval);
+        votes = {};
+        voteOrder = [...playersList];
+        currentVoterIndex = 0;
+        showNextVoter();
+    }
+
+    function showNextVoter() {
+        if (currentVoterIndex >= voteOrder.length) {
+            calculateVoteResult();
+            return;
+        }
+        let voter = voteOrder[currentVoterIndex];
+        let others = playersList.filter(p => p !== voter);
+        
+        let container = document.getElementById('voteContainer');
+        container.innerHTML = `<h3>🗳️ دور ${voter}</h3><p>اختر من تشتبه به:</p>`;
+        others.forEach(p => {
+            let btn = document.createElement('div');
+            btn.className = 'vote-option';
+            btn.innerText = p;
+            btn.onclick = () => {
+                votes[voter] = p;
+                currentVoterIndex++;
+                showNextVoter();
+            };
+            container.appendChild(btn);
+        });
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('voteScreen').classList.add('active');
+    }
+
+    function calculateVoteResult() {
+        let voteCount = {};
+        Object.values(votes).forEach(v => voteCount[v] = (voteCount[v] || 0) + 1);
+        let maxVotes = 0, accused = null;
+        for (let [player, count] of Object.entries(voteCount)) {
+            if (count > maxVotes) { maxVotes = count; accused = player; }
+        }
+        
+        let accusedIndex = playersList.indexOf(accused);
+        let isSpy = (accusedIndex === spyIndex);
+        
+        let resultMsg = isSpy ? `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!` : `❌ تم اتهام ${accused} (بريء)! يستمر الجاسوس.`;
+        
+        document.getElementById('resultTitle').innerText = isSpy ? "🎉 فوز العملاء!" : "💀 الجاسوس ينجو!";
+        document.getElementById('resultMessage').innerHTML = `<div class="card">${resultMsg}<br><br>${isSpy ? '' : 'اللعبة انتهت، شكراً للعب!'}</div>`;
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('resultScreen').classList.add('active');
+        
+        if (isSpy) {
+            db.ref('rooms/' + currentRoomId).update({ gameOver: true });
+        } else {
+            backToHome();
+        }
+    }
+
+    function leaveRoom() {
+        if (currentRoomId) {
+            db.ref('rooms/' + currentRoomId).remove();
+        }
+        currentRoomId = null;
+        if (timerInterval) clearInterval(timerInterval);
+        backToHome();
+    }
+
+    // استعادة الجلسة إذا كان هناك غرفة سابقة
+    let savedRoom = localStorage.getItem('spyRoom');
+    let savedName = localStorage.getItem('spyName');
+    if (savedRoom && savedName) {
+        currentRoomId = savedRoom;
+        currentPlayerName = savedName;
+        db.ref('rooms/' + savedRoom).once('value', (snap) => {
+            if (snap.exists() && snap.val().status === "waiting") {
+                listenToRoom();
+                showWaitingScreen();
+            } else {
+                localStorage.removeItem('spyRoom');
+                localStorage.removeItem('spyName');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
