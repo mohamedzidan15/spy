@@ -3,56 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SPY | الجاسوس - لعبة الجواسيس</title>
+    <title>SPY | الجاسوس - ZIDAN DESIGNER</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cairo:wght@400;700&family=Amiri:wght@400;700&family=Press+Start+2P&family=Creepster&family=Monoton&family=Rajdhani:wght@400;700&display=swap');
 
-        body {
-            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
-            min-height: 100vh;
-            color: #ffffff;
-        }
-
-        /* header */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
+        body { margin: 0; min-height: 100vh; transition: 0.3s; position: relative; overflow-x: hidden; }
+        
         .app-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 1000;
-            border-bottom: 2px solid #ffd93d;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
         }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            font-family: 'Orbitron', monospace;
-            color: #ffd93d;
-        }
-
-        .menu-icon {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #ffd93d;
-        }
-
-        /* screens */
+        .logo { font-weight: 900; letter-spacing: 2px; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
+        .menu-icon { font-size: 1.5rem; cursor: pointer; }
         .screen {
             display: none;
             position: fixed;
@@ -62,545 +34,575 @@
             bottom: 0;
             overflow-y: auto;
             padding: 20px;
+            z-index: 10;
         }
-
-        .screen.active {
-            display: block;
-        }
-
-        /* buttons */
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            margin: 12px 0;
+        .screen.active { display: block; }
+        .main-btn {
             border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            padding: 14px;
+            font-weight: 900;
+            font-size: 1rem;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            width: 100%;
+            margin-top: 15px;
+            transition: 0.2s;
             text-align: center;
         }
-
-        .btn:active {
-            transform: scale(0.97);
+        .main-btn:active { transform: scale(0.97); }
+        .secondary-btn { background: transparent; }
+        
+        /* شرح اللعبة بالفيديو الاحترافي */
+        .video-container {
+            position: relative;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-
-        .btn-primary {
-            background: #ffd93d;
-            color: #1a1a2e;
+        
+        .welcome-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+            animation: welcomeFadeOut 2s ease-in-out forwards;
+            z-index: 20;
         }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        @keyframes welcomeFadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); visibility: hidden; }
         }
-
-        /* cards */
-        .card {
-            background: rgba(0, 0, 0, 0.6);
+        .welcome-icon { font-size: 5rem; margin-bottom: 20px; animation: iconGlow 1s ease-out; }
+        @keyframes iconGlow {
+            0% { text-shadow: 0 0 0 var(--primary); transform: scale(0); }
+            100% { text-shadow: 0 0 30px var(--primary); transform: scale(1); }
+        }
+        .welcome-title { font-size: 2rem; font-weight: bold; margin-bottom: 10px; }
+        .welcome-sub { font-size: 1rem; opacity: 0.8; }
+        
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: gridReveal 0.5s ease-out forwards;
+            animation-delay: 2s;
+        }
+        @keyframes gridReveal { to { opacity: 1; } }
+        
+        .info-card-item {
+            background: var(--card-bg, rgba(0,0,0,0.6));
             backdrop-filter: blur(10px);
             border-radius: 24px;
-            padding: 20px;
-            margin: 15px 0;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transform: translateX(-50px);
+            opacity: 0;
+            animation: slideInCard 0.5s ease-out forwards;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        /* input */
-        input {
+        .info-card-item:hover {
+            transform: translateX(0) scale(1.02);
+            border-color: var(--primary, #fff);
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+        @keyframes slideInCard {
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .info-card-item:nth-child(1) { animation-delay: 2.2s; }
+        .info-card-item:nth-child(2) { animation-delay: 2.5s; }
+        .info-card-item:nth-child(3) { animation-delay: 2.8s; }
+        .info-card-item:nth-child(4) { animation-delay: 3.1s; }
+        .info-card-item:nth-child(5) { animation-delay: 3.4s; }
+        
+        .card-icon { font-size: 2.5rem; width: 60px; text-align: center; }
+        .card-content { flex: 1; }
+        .card-content h3 { font-size: 1.2rem; margin-bottom: 5px; }
+        .card-content p { font-size: 0.85rem; opacity: 0.9; line-height: 1.4; }
+        
+        .timeline-bar {
             width: 100%;
-            padding: 12px 18px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            font-size: 1rem;
-            margin: 10px 0;
-            text-align: right;
+            max-width: 500px;
+            margin: 30px auto 20px;
+            height: 3px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInBar 0.5s forwards;
+            animation-delay: 2s;
         }
-
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+        @keyframes fadeInBar { to { opacity: 1; } }
+        .timeline-progress {
+            width: 0%;
+            height: 100%;
+            background: var(--primary, #fff);
+            border-radius: 3px;
+            animation: progressBar 3s ease-out forwards;
+            animation-delay: 2s;
         }
-
-        /* map selection */
+        @keyframes progressBar { 0% { width: 0%; } 100% { width: 100%; } }
+        
+        .close-howto-btn {
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeInBtn 0.5s forwards;
+            animation-delay: 3.8s;
+        }
+        @keyframes fadeInBtn { to { opacity: 1; } }
+        
+        /* تصميم الأماكن العمودي */
         .map-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
             margin: 20px 0;
         }
-
         .map-category {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 20px;
-            padding: 15px 20px;
+            background: var(--card-bg, rgba(0,0,0,0.6));
+            border-radius: 24px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
             display: flex;
             align-items: center;
             gap: 15px;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: 0.2s;
         }
-
         .map-category.selected {
-            border-color: #ffd93d;
-            background: rgba(255, 217, 61, 0.2);
-            box-shadow: 0 0 10px rgba(255, 217, 61, 0.3);
+            border-color: var(--primary, #fff);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 0 15px var(--glow, rgba(255,255,255,0.3));
         }
-
         .map-category i {
-            font-size: 1.8rem;
-            width: 45px;
+            font-size: 2rem;
+            width: 50px;
             text-align: center;
-            color: #ffd93d;
+            color: var(--primary, #fff);
         }
-
-        .category-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            flex: 1;
-        }
-
-        /* time selector */
-        .time-selector {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .time-btn {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 30px;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .time-btn.selected {
-            background: #ffd93d;
-            color: #1a1a2e;
-            font-weight: bold;
-        }
-
-        /* players list */
-        .players-list {
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 20px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .player-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 50px;
-            margin-bottom: 10px;
-        }
-
-        .player-row input {
-            flex: 1;
-            margin: 0;
-        }
-
-        .remove-icon {
-            color: #ff6b6b;
-            cursor: pointer;
+        .map-category .category-name {
             font-size: 1.2rem;
+            font-weight: bold;
+            flex: 1;
         }
-
-        /* role card */
+        .map-category .category-count {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        /* بطاقة عرض الدور الأصلي */
+        .card-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
         .role-card {
-            background: rgba(0, 0, 0, 0.9);
-            border-radius: 40px;
-            padding: 40px 20px;
+            width: 100%;
+            max-width: 340px;
+            min-height: 380px;
+            background: var(--card-bg, rgba(0,0,0,0.6));
+            border-radius: 32px;
+            border: 2px solid var(--primary, #fff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
             cursor: pointer;
-            border: 2px solid #ffd93d;
-            transition: 0.1s;
-            max-width: 350px;
-            margin: 20px auto;
+            transition: 0.1s linear;
+            padding: 20px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
         }
-
-        .role-card:active {
+        .role-card.pressed {
+            box-shadow: 0 0 20px 8px var(--glow, rgba(255,255,255,0.3));
             transform: scale(0.98);
         }
-
-        .role-card .hidden-content {
+        .fingerprint-icon {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            color: var(--primary, #fff);
+        }
+        .role-content {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .role-card.pressed .role-content {
+            display: flex;
+        }
+        .role-card.pressed .front-content {
             display: none;
         }
-
-        .role-card.show .hidden-content {
-            display: block;
+        .front-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        .role-card.show .front-content {
-            display: none;
+        
+        /* باقي العناصر */
+        .timer-text { font-size: 4rem; text-align: center; margin: 40px 0; font-family: monospace; font-weight: bold; }
+        .time-selector { display: flex; gap: 10px; margin: 15px 0; }
+        .time-btn { flex: 1; padding: 10px; border-radius: 20px; text-align: center; cursor: pointer; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); }
+        .time-btn.selected { background: var(--primary); color: #000; }
+        .player-row {
+            background: var(--card-bg, rgba(0,0,0,0.6));
+            padding: 12px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
+        .player-row input { background: none; border: none; color: #fff; flex: 1; font-size: 1rem; text-align: right; outline: none; }
+        .remove-icon { margin-left: 10px; cursor: pointer; color: var(--primary); }
+        .vote-turn-card { border-radius: 30px; padding: 30px; text-align: center; margin-bottom: 30px; background: var(--card-bg, rgba(0,0,0,0.6)); border: 1px solid rgba(255,255,255,0.2); }
+        .vote-turn-name { font-size: 2rem; font-weight: bold; margin-bottom: 20px; color: var(--primary); }
+        .vote-options { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+        .vote-option-btn { padding: 15px; border-radius: 25px; font-size: 1.1rem; cursor: pointer; transition: 0.2s; text-align: center; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); }
+        .vote-option-btn:hover { background: var(--primary); color: #000; }
+        .vote-progress { text-align: center; margin-top: 20px; }
+        .vote-results { background: var(--card-bg, rgba(0,0,0,0.6)); border-radius: 20px; padding: 20px; margin-top: 20px; }
+        .vote-result-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .vote-count { color: var(--primary); font-weight: bold; }
+        .players-list { background: var(--card-bg, rgba(0,0,0,0.6)); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
+        .players-list h3 { color: var(--primary); margin-bottom: 10px; }
+        .dialog-overlay {
+            position: fixed; inset: 0; z-index: 3000;
+            display: none; align-items: center; justify-content: center; padding: 20px;
+            background: rgba(0,0,0,0.95);
+        }
+        .dialog-box { background: var(--card-bg, #1a1a24); padding: 28px; border-radius: 32px; width: 100%; max-width: 380px; text-align: center; border: 1px solid var(--primary); }
+        .side-menu {
+            position: fixed; top: 0; right: -300px; width: 280px; z-index: 2000; transition: 0.4s;
+            padding: 80px 20px 30px; overflow-y: auto;
+            background: var(--card-bg, #0a0a0f);
+            border-left: 2px solid var(--primary);
+        }
+        .side-menu.open { right: 0; }
+        .menu-overlay { position: fixed; inset: 0; z-index: 1999; display: none; background: rgba(0,0,0,0.8); }
+        .menu-overlay.show { display: block; }
+        .home-content { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; }
+        .info-card { background: var(--card-bg, #1a1a24); border-radius: 24px; padding: 20px; }
 
-        /* timer */
-        .timer-text {
-            font-size: 4rem;
+        /* رسالة الإقصاء الداخلية - بدون نافذة منبثقة */
+        .elimination-message {
+            position: fixed;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: #000;
+            padding: 15px 20px;
+            border-radius: 50px;
             text-align: center;
-            font-family: monospace;
             font-weight: bold;
-            margin: 20px 0;
-            color: #ffd93d;
+            z-index: 500;
+            animation: slideUp 0.3s ease-out;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        /* chat */
+        /* شات */
         .chat-container {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.5);
             border-radius: 20px;
-            height: 200px;
+            height: 180px;
             display: flex;
             flex-direction: column;
             margin: 15px 0;
         }
-
         .chat-messages {
             flex: 1;
             overflow-y: auto;
             padding: 10px;
             font-size: 0.85rem;
         }
-
         .chat-input-area {
             display: flex;
-            gap: 10px;
             padding: 10px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            gap: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
         }
-
         .chat-input-area input {
             flex: 1;
-            margin: 0;
-            padding: 10px;
-        }
-
-        .chat-input-area button {
-            width: auto;
-            padding: 10px 20px;
-            background: #ffd93d;
+            background: rgba(0,0,0,0.5);
             border: none;
-            border-radius: 30px;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            margin: 0;
+        }
+        .chat-input-area button {
+            background: var(--primary);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
             cursor: pointer;
-        }
-
-        /* vote */
-        .vote-option {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 14px;
-            margin: 10px 0;
-            border-radius: 50px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .vote-option:active {
-            background: #ffd93d;
-            color: #1a1a2e;
-        }
-
-        /* notification */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: #ffd93d;
-            color: #1a1a2e;
-            padding: 15px;
-            border-radius: 50px;
-            text-align: center;
-            z-index: 2000;
             font-weight: bold;
-            animation: slideUp 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(100px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* countdown */
         .countdown-overlay {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 5rem;
-            color: #ffd93d;
-            background: rgba(0, 0, 0, 0.85);
+            color: var(--primary);
+            background: rgba(0,0,0,0.85);
             padding: 30px 50px;
             border-radius: 60px;
             z-index: 3000;
             font-weight: bold;
-            text-shadow: 0 0 20px black;
+            font-family: monospace;
         }
 
-        /* room code */
         .room-code {
             font-size: 2rem;
             text-align: center;
             letter-spacing: 5px;
-            background: #ffd93d;
-            color: #1a1a2e;
+            background: var(--primary);
+            color: #000;
             padding: 15px;
             border-radius: 20px;
             font-weight: bold;
             margin: 15px 0;
         }
 
-        /* side menu */
-        .side-menu {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 280px;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 1500;
-            transition: 0.3s;
-            padding: 80px 20px 30px;
-            border-left: 2px solid #ffd93d;
-        }
-
-        .side-menu.open {
-            right: 0;
-        }
-
-        .menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1400;
-            display: none;
-        }
-
-        .menu-overlay.show {
-            display: block;
-        }
-
-        /* intro */
-        .intro-animation {
+        .quick-intro {
             position: fixed;
             inset: 0;
             background: #000;
-            z-index: 10000;
+            z-index: 10001;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            animation: fadeOutIntro 0.5s forwards;
-            animation-delay: 2.5s;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s;
         }
-
-        @keyframes fadeOutIntro {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
-        }
-
-        .letter {
-            display: inline-block;
-            font-size: 4rem;
-            font-family: 'Orbitron', monospace;
-            font-weight: bold;
-            color: #ffd93d;
+        .quick-intro.show { opacity: 1; visibility: visible; }
+        .quick-intro .spy-icon { font-size: 4rem; animation: quickPulse 0.3s ease-out; }
+        .quick-intro .spy-letters { display: flex; flex-direction: row-reverse; margin-top: 20px; }
+        .quick-intro .spy-letters span {
+            font-family: 'Orbitron';
+            font-size: 2rem;
+            font-weight: 900;
             margin: 0 5px;
             opacity: 0;
-            transform: translateY(30px);
-            animation: letterPop 0.4s forwards;
+            transform: translateY(20px);
+            animation: quickLetterReveal 0.2s forwards;
+        }
+        @keyframes quickPulse {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes quickLetterReveal {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes letterPop {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* الثيمات */
+        body.theme-cinema { --primary: #ffd93d; --card-bg: rgba(0,0,0,0.6); background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%); color: #ffd93d; }
+        body.theme-newspaper { --primary: #d4af7a; --card-bg: rgba(0,0,0,0.6); background: #1a140e; color: #d4af7a; }
+        body.theme-warzone { --primary: #8b7355; --card-bg: rgba(0,0,0,0.7); background: #0f0c08; color: #8b7355; }
+        body.theme-hologram { --primary: #00ccff; --card-bg: rgba(0,204,255,0.1); background: #03030f; color: #00ccff; }
+        body.theme-cartoon { --primary: #ff9999; --card-bg: rgba(0,0,0,0.5); background: #1a0f0f; color: #ff9999; }
+        
+        body.theme-cinema .app-header { background: rgba(0,0,0,0.8); border-bottom: 2px solid #ffd93d; }
+        body.theme-cinema .logo { font-family: 'Monoton', cursive; }
+        body.theme-cinema .main-btn { background: linear-gradient(45deg, #ffd93d, #ffb347); clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); }
+        
+        body.theme-newspaper .app-header { background: #0a0704; border-bottom: 2px solid #d4af7a; }
+        body.theme-newspaper .logo { font-family: 'Amiri', serif; }
+        body.theme-newspaper .main-btn { background: #8b6b42; box-shadow: 4px 4px 0 #5a3a1a; }
+        
+        body.theme-warzone .app-header { background: #050403; border-bottom: 2px solid #8b7355; }
+        body.theme-warzone .logo { font-family: 'Orbitron'; }
+        body.theme-warzone .main-btn { background: #2a241c; border: 1px solid #8b7355; }
+        
+        body.theme-hologram .app-header { background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border-bottom: 1px solid #00ccff; }
+        body.theme-hologram .logo { font-family: 'Press Start 2P'; font-size: 0.7rem; text-shadow: 0 0 5px #00ccff; }
+        body.theme-hologram .main-btn { background: transparent; border: 1px solid #00ccff; box-shadow: 0 0 8px #00ccff; }
+        
+        body.theme-cartoon .app-header { background: #2a1a1a; border-bottom: 3px dotted #ff9999; }
+        body.theme-cartoon .logo { font-family: 'Comic Neue', cursive; }
+        body.theme-cartoon .main-btn { background: #aa5555; border-radius: 30px; border: 2px solid #ff9999; box-shadow: 4px 4px 0 #ff9999; }
+        
+        /* للشاشات الصغيرة */
+        .player-item { padding: 8px; background: rgba(0,0,0,0.3); margin: 5px 0; border-radius: 12px; }
+        .waiting-players-list { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 15px; margin: 15px 0; }
     </style>
 </head>
-<body>
+<body class="theme-cinema">
 
 <div class="app-header">
     <div class="menu-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     <div class="logo"><i class="fas fa-user-secret"></i> SPY</div>
-    <div style="width: 30px;"></div>
+    <div style="width: 24px;"></div>
 </div>
 
-<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="side-menu" id="sideMenu">
-    <h2 style="color: #ffd93d; margin-bottom: 20px;">⚙️ الإعدادات</h2>
-    <button class="btn btn-secondary" onclick="switchTheme('dark')">🌙 داكن</button>
-    <button class="btn btn-secondary" onclick="switchTheme('gold')">✨ ذهبي</button>
-    <button class="btn btn-secondary" onclick="switchTheme('blue')">💙 أزرق</button>
-    <hr style="margin: 20px 0; border-color: #333;">
-    <p style="text-align: center;">تصميم: Mohamed Zidan</p>
-    <button class="btn btn-secondary" onclick="resetToHome()">🏠 الرئيسية</button>
+    <h2 style="font-family: 'Orbitron'; color: var(--primary); margin-bottom: 20px;">الإعدادات</h2>
+    <p>ثيمات غامقة:</p>
+    <button class="main-btn" onclick="switchTheme('cinema')">🎬 سينمائي</button>
+    <button class="main-btn" onclick="switchTheme('newspaper')">📰 جريدة قديمة</button>
+    <button class="main-btn" onclick="switchTheme('warzone')">⚔️ حرب</button>
+    <button class="main-btn" onclick="switchTheme('hologram')">💠 هولوجرام</button>
+    <button class="main-btn" onclick="switchTheme('cartoon')">🎨 كارتون</button>
+    <hr style="margin: 15px 0; border-color: #333;">
+    <div class="info-card"><i class="fas fa-user-secret fa-2x" style="color: var(--primary);"></i><p style="margin-top: 10px;">إصدار 6.0</p><p>تصميم: Mohamed Zidan</p></div>
+    <button class="main-btn" onclick="resetGameToHome()" style="background: #333; color: #fff;">الرئيسية</button>
 </div>
 
-<!-- الشاشة الرئيسية -->
-<div id="homeScreen" class="screen active" style="text-align: center; padding-top: 80px;">
-    <i class="fas fa-user-secret" style="font-size: 80px; color: #ffd93d; margin-bottom: 30px;"></i>
-    <h1 style="font-family: 'Orbitron'; font-size: 3rem; margin-bottom: 40px;">SPY</h1>
-    <div style="max-width: 300px; margin: 0 auto;">
-        <button class="btn btn-primary" onclick="startOffline()">📱 لعبة أوفلاين</button>
-        <button class="btn btn-primary" onclick="showOnlineMenu()">🌐 لعبة أونلاين</button>
-        <button class="btn btn-secondary" onclick="showHowTo()">📖 شرح اللعبة</button>
+<div id="quickIntro" class="quick-intro">
+    <div class="spy-icon"><i class="fas fa-user-secret" id="quickIcon"></i></div>
+    <div class="spy-letters" id="quickLetters">
+        <span>S</span><span>P</span><span>Y</span>
     </div>
 </div>
 
-<!-- شرح اللعبة -->
-<div id="howtoScreen" class="screen">
-    <div class="card">
-        <h2 style="color: #ffd93d; text-align: center;">🎮 طريقة اللعب</h2>
-        <p style="margin: 15px 0;">🔹 كل لاعب له دور سري: <strong>جاسوس</strong> أو <strong>عميل</strong><br>
-        🔹 العميل يعرف المكان السري، الجاسوس لا يعرفه<br>
-        🔹 وقت النقاش: اسألوا بعض عشان تكتشفوا الجاسوس<br>
-        🔹 في التصويت: كل واحد يصوت على اللي يشتبه فيه<br>
-        🔹 إذا تم اكتشاف الجاسوس → العملاء يفوزون<br>
-        🔹 إذا بقي الجاسوس لوحده → الجاسوس يفوز</p>
-        <h3 style="color: #ffd93d; margin-top: 20px;">🌐 طريقة الأونلاين:</h3>
-        <p>1️⃣ شخص يضغط "إنشاء غرفة" ويحصل على كود<br>
-        2️⃣ الأصدقاء يضغطون "انضمام" ويدخلون نفس الكود<br>
-        3️⃣ المضيف يختار المكان ويبدأ اللعبة<br>
-        4️⃣ كل واحد يشوف دوره على هاتفه<br>
-        5️⃣ بعد ما كل اللاعبين يشوفوا أدوارهم، يبدأ عد تنازلي 5 ثواني<br>
-        6️⃣ يتناقشوا في الشات المدمج<br>
-        7️⃣ أي لاعب يضغط زر التصويت، الكل يدخل التصويت مع بعض</p>
-        <button class="btn btn-primary" onclick="goHome()">رجوع</button>
+<!-- الشاشات -->
+<div id="homeScreen" class="screen active">
+    <div class="home-content">
+        <i class="fas fa-user-secret" style="font-size: 100px; color: #ffffff; margin-bottom: 30px;"></i>
+        <h1 style="font-family: 'Orbitron'; margin-bottom: 40px; color: #ffffff;">SPY</h1>
+        <div style="width: 100%; max-width: 300px;">
+            <button class="main-btn" onclick="startOfflineMode()">📱 لعبة أوفلاين (جهاز واحد)</button>
+            <button class="main-btn" onclick="showOnlineMenu()">🌐 لعبة أونلاين (مع الصحاب)</button>
+            <button class="main-btn secondary-btn" onclick="openHowtoVideo()">📖 شرح اللعبة</button>
+            <button class="main-btn secondary-btn" onclick="toggleMenu()">⚙️ الإعدادات</button>
+        </div>
     </div>
 </div>
 
-<!-- أوفلاين: اختيار الأماكن -->
-<div id="mapSelectionScreen" class="screen">
-    <h2 style="text-align: center;">📍 اختر مسرح الجريمة</h2>
+<div id="howto" class="screen">
+    <div class="video-container" id="videoContainer"></div>
+</div>
+
+<!-- ==================== أوفلاين: نفس الكود الأصلي ==================== -->
+<div id="mapSelection" class="screen">
+    <h2 style="text-align: center;">اختر مسرح الجريمة</h2>
     <div class="map-list" id="mapList"></div>
-    <div class="card">
-        <p>⏱️ مدة النقاش:</p>
+    <div style="margin: 20px 0;">
+        <p style="margin-bottom: 10px;">⏱️ مدة النقاش:</p>
         <div class="time-selector" id="timeSelector">
             <div class="time-btn" data-time="120">2 دقائق</div>
             <div class="time-btn selected" data-time="300">5 دقائق</div>
             <div class="time-btn" data-time="600">10 دقائق</div>
         </div>
     </div>
-    <button class="btn btn-primary" onclick="goToPlayersSetup()">التالي</button>
-    <button class="btn btn-secondary" onclick="goHome()">رجوع</button>
+    <button class="main-btn" onclick="navTo('playerSetup')">التالي</button>
 </div>
 
-<!-- أوفلاين: إضافة اللاعبين -->
-<div id="playersSetupScreen" class="screen">
-    <h2 style="text-align: center;">👥 تسجيل العملاء</h2>
-    <div id="offlinePlayersContainer" class="card"></div>
-    <button class="btn btn-secondary" onclick="addOfflinePlayer()">+ إضافة لاعب</button>
-    <button class="btn btn-primary" onclick="startOfflineGame()">🎯 توزيع الهويات</button>
-    <button class="btn btn-secondary" onclick="goToMapSelection()">رجوع</button>
+<div id="playerSetup" class="screen">
+    <h2 style="text-align: center;">تسجيل العملاء</h2>
+    <div id="list" style="margin-bottom: 15px;"></div>
+    <button class="main-btn" style="background: #222;" onclick="addPlayer()">+ إضافة لاعب</button>
+    <button class="main-btn" onclick="startOfflineGame()">توزيع الهويات</button>
 </div>
 
-<!-- أونلاين: القائمة -->
+<!-- ==================== أونلاين: شاشات الغرف ==================== -->
 <div id="onlineMenuScreen" class="screen">
-    <div class="card" style="text-align: center;">
-        <button class="btn btn-primary" onclick="showCreateRoomUI()">➕ إنشاء غرفة</button>
-        <button class="btn btn-primary" onclick="showJoinRoomUI()">🔗 انضمام لغرفة</button>
-        <button class="btn btn-secondary" onclick="goHome()">رجوع</button>
+    <div class="card" style="text-align: center; background: var(--card-bg); border-radius: 24px; padding: 30px;">
+        <button class="main-btn" onclick="showCreateRoomUI()">➕ إنشاء غرفة جديدة</button>
+        <button class="main-btn" onclick="showJoinRoomUI()">🔗 الانضمام إلى غرفة</button>
+        <button class="main-btn secondary-btn" onclick="goHome()">رجوع</button>
     </div>
 </div>
 
-<!-- أونلاين: إنشاء غرفة -->
 <div id="createRoomScreen" class="screen">
     <div class="card">
-        <input type="text" id="hostNameInput" placeholder="اسمك">
-        <button class="btn btn-primary" onclick="createRoom()">إنشاء الغرفة</button>
-        <button class="btn btn-secondary" onclick="backToOnlineMenu()">رجوع</button>
+        <input type="text" id="onlineHostName" placeholder="اسمك" style="width:100%; padding:12px; border-radius:30px;">
+        <button class="main-btn" onclick="createOnlineRoom()">إنشاء غرفة</button>
+        <button class="main-btn secondary-btn" onclick="backToOnlineMenu()">رجوع</button>
     </div>
 </div>
 
-<!-- أونلاين: انضمام -->
 <div id="joinRoomScreen" class="screen">
     <div class="card">
-        <input type="text" id="joinCodeInput" placeholder="كود الغرفة" maxlength="6" style="text-transform: uppercase;">
-        <input type="text" id="joinNameInput" placeholder="اسمك">
-        <button class="btn btn-primary" onclick="joinRoom()">انضمام</button>
-        <button class="btn btn-secondary" onclick="backToOnlineMenu()">رجوع</button>
+        <input type="text" id="joinRoomCodeInput" placeholder="كود الغرفة" maxlength="6" style="text-transform:uppercase">
+        <input type="text" id="joinPlayerNameInput" placeholder="اسمك">
+        <button class="main-btn" onclick="joinOnlineRoom()">انضمام</button>
+        <button class="main-btn secondary-btn" onclick="backToOnlineMenu()">رجوع</button>
     </div>
 </div>
 
-<!-- أونلاين: غرفة انتظار -->
-<div id="waitingRoomScreen" class="screen">
+<div id="onlineWaitingScreen" class="screen">
     <div class="card" style="text-align: center;">
-        <p>🏷️ كود الغرفة</p>
-        <div class="room-code" id="roomCodeDisplay">-----</div>
-        <div class="players-list" id="waitingPlayersList"></div>
-        <button class="btn btn-primary" id="startGameHostBtn" style="display: none;" onclick="hostStartGame()">🚀 بدء اللعبة</button>
-        <button class="btn btn-secondary" onclick="leaveRoom()">مغادرة</button>
+        <div>كود الغرفة</div>
+        <div class="room-code" id="waitingRoomCodeDisplay">-----</div>
+        <div class="players-list waiting-players-list" id="waitingPlayersList"></div>
+        <button class="main-btn" id="startOnlineGameBtn" style="display:none" onclick="hostStartOnlineGame()">🎯 بدء اللعبة</button>
+        <button class="main-btn secondary-btn" onclick="leaveOnlineRoom()">مغادرة</button>
     </div>
 </div>
 
-<!-- شاشة الأدوار (مشتركة) -->
+<!-- شاشة الأدوار (مشتركة بين أوفلاين وأونلاين) -->
 <div id="rolesScreen" class="screen">
-    <h2 id="rolePlayerName" style="text-align: center; color: #ffd93d;"></h2>
-    <div class="role-card" id="roleCard" onclick="revealMyRole()">
-        <div class="front-content">
-            <i class="fas fa-fingerprint" style="font-size: 4rem;"></i>
-            <p style="margin-top: 15px;">👆 اضغط لرؤية دورك</p>
+    <h2 id="turnText" style="text-align: center; color: var(--primary);"></h2>
+    <div class="card-container">
+        <div class="role-card" id="roleCard">
+            <div class="front-content">
+                <i class="fas fa-fingerprint fingerprint-icon"></i>
+                <p>اضغط لرؤية مهمتك</p>
+                <p style="font-size: 0.8rem; margin-top: 8px;">(اضغط)</p>
+            </div>
+            <div class="role-content" id="roleContent"></div>
         </div>
-        <div class="hidden-content" id="roleHiddenContent"></div>
     </div>
-    <div id="roleReadyContainer" style="text-align: center; margin-top: 20px;"></div>
+    <div id="roleNextContainer" style="text-align: center; margin-top: 20px;"></div>
 </div>
 
-<!-- شاشة اللعب (مشتركة) -->
-<div id="gameplayScreen" class="screen">
-    <div class="timer-text" id="gameTimer">05:00</div>
+<!-- شاشة اللعب (مشتركة مع شات) -->
+<div id="gameplay" class="screen">
+    <div class="timer-text" id="timer">05:00</div>
     <div class="players-list">
-        <h3>👥 اللاعبون</h3>
-        <div id="gamePlayersList"></div>
+        <h3>👥 اللاعبون المتبقون</h3>
+        <div id="playersNamesList"></div>
     </div>
     <div class="chat-container">
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="اكتب رسالتك...">
-            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i> إرسال</button>
         </div>
     </div>
-    <button class="btn btn-primary" id="voteTriggerBtn" onclick="triggerVote()" style="background: #d32f2f;">🗳️ اتهام الجاسوس</button>
+    <button class="main-btn" id="voteBtn" style="background: #d32f2f;" onclick="triggerVote()">اتهام الجاسوس</button>
 </div>
 
-<!-- شاشة التصويت -->
-<div id="voteScreen" class="screen">
-    <h2 style="text-align: center; color: #ffd93d;">🗳️ التصويت</h2>
-    <div id="voteContainer" class="card"></div>
+<div id="votePage" class="screen">
+    <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">🗳️ التصويت</h2>
+    <div id="voteTurnContainer"></div>
 </div>
 
-<!-- شاشة النتيجة -->
-<div id="resultScreen" class="screen">
-    <h2 id="resultTitle" style="text-align: center;"></h2>
-    <div id="resultMessage" class="card"></div>
-    <button class="btn btn-primary" onclick="resetToHome()">🏠 الرئيسية</button>
+<div id="voteResultsPage" class="screen">
+    <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">📊 نتيجة التصويت</h2>
+    <div id="resultsSection"></div>
+    <button class="main-btn" id="continueBtn" onclick="processVoteResult()">متابعة</button>
 </div>
 
 <script>
-    // ==================== Firebase ====================
+    // ==================== Firebase Config ====================
     const firebaseConfig = {
         apiKey: "AIzaSyAAAYnRPWgzCuZxt99uvx2BA90dDGwaC7c",
         authDomain: "spy1-d766d.firebaseapp.com",
@@ -611,555 +613,355 @@
         appId: "1:318881354838:web:00db6be734e40cfeed57f7"
     };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
     // ==================== البيانات ====================
-    const MAPS = {
-        public: ["مطار", "بنك", "مطعم", "سينما", "مستشفى", "مدرسة", "متحف", "مركز تسوق"],
-        scifi: ["محطة فضاء", "قاعدة مريخية", "سفينة فضائية", "مختبر سري", "كوكب بعيد"],
-        travel: ["برج إيفل", "الأهرامات", "سور الصين", "تاج محل", "الكولوسيوم"],
-        home: ["المطبخ", "غرفة المعيشة", "غرفة النوم", "الحمام", "المرآب"],
-        cities: ["القاهرة", "باريس", "نيويورك", "طوكيو", "لندن"],
-        entertainment: ["ستوديو أفلام", "مدينة ألعاب", "سيرك", "ملعب", "مسرح"]
+    const MAP_DATA = {
+        'public': ["مطار", "بنك", "مطعم", "سينما", "مستشفى", "حديقة عامة", "مدرسة", "متحف", "مركز تسوق", "صالة ألعاب", "محطة قطار", "مقهى", "مكتبة", "نادي رياضي", "قاعة حفلات", "معرض فني", "محطة بنزين", "حديقة حيوان", "مدينة ملاهي", "سوق شعبي"],
+        'sci-fi': ["محطة فضاء", "مفاعل نووي", "غواصة فضائية", "قاعدة مريخية", "سفينة فضائية", "مختبر سري", "مدينة تحت الماء", "كوكب بعيد", "مركبة فضائية", "بوابة زمنية", "مستعمرة قمرية", "مصنع آلي", "مخبأ تحت الأرض", "غابة مضيئة", "مدينة عائمة", "مختبر أبحاث فضائي"],
+        'travel': ["برج إيفل", "الأهرامات", "سور الصين العظيم", "الكولوسيوم", "مدينة البندقية", "تاج محل", "جزيرة الفصح", "معبد الأقصر", "برج بيزا", "البتراء", "ماتشو بيتشو", "أكروبوليس أثينا", "الطريق السريع 66", "ساغرادا فاميليا", "كاتدرائية القديس بطرس", "جزر المالديف", "نياغارا شلالات"],
+        'home': ["المطبخ", "غرفة المعيشة", "القبو", "الحمام", "غرفة النوم", "المرآب", "الحديقة الخلفية", "العلية", "غرفة الألعاب", "المكتب المنزلي", "غرفة الغسيل", "الشرفة", "الممر", "غرفة الضيوف", "المخزن", "غرفة الطعام"],
+        'cities': ["القاهرة", "باريس", "نيويورك", "طوكيو", "لندن", "دبي", "روما", "برلين", "موسكو", "بكين", "اسطنبول", "سيدني", "مومباي", "سان فرانسيسكو", "مدينة مكسيكو", "ريو دي جانيرو", "كيب تاون", "سنغافورة", "برشلونة", "فيينا", "بودابست", "براغ"],
+        'entertainment': ["ستوديو أفلام", "مدينة ألعاب", "سيرك", "دار أوبرا", "ملعب كرة قدم", "حلبة سباق", "قاعة مؤتمرات", "نادي ليلي", "منتجع صحي", "شاطئ خاص", "منتزه مائي", "قصر ثقافة", "مسرح", "صالة بولينغ", "مركز غوص", "مزرعة ترفيهية"]
     };
 
-    let currentMode = null; // 'offline' or 'online'
-    let playersList = [];
-    let activePlayers = [];
-    let spyIndex = -1;
-    let currentLocation = "";
-    let selectedMapKey = "public";
-    let selectedTime = 300;
-    let timerInterval = null;
+    const howtoData = [
+        { icon: "fas fa-theater-masks", title: "🎭 الأدوار", desc: "يتم توزيع الأدوار عشوائياً: أحدكم هو الجاسوس، والباقي عملاء يعرفون الموقع السري." },
+        { icon: "fas fa-fingerprint", title: "🕵️ مرحلة الأدوار", desc: "اضغط على البصمة لرؤية دورك. سيظهر للموظفين الموقع، وللجاسوس رسالة أنه لا يعرف المكان." },
+        { icon: "fas fa-comments", title: "💬 النقاش", desc: "لديكم وقت محدد للتحدث وطرح الأسئلة، محاولين اكتشاف الجاسوس دون كشف المكان." },
+        { icon: "fas fa-vote-yea", title: "⚖️ التصويت", desc: "كل لاعب يدلي بصوته على من يشتبه به. اللاعب الأكثر أصواتاً يتم اتهامه. إذا كان جاسوساً يفوز العملاء، وإذا كان بريئاً يُقصى وتستمر الجولة." },
+        { icon: "fas fa-trophy", title: "🏆 الفوز", desc: "يفوز العملاء إذا تم اكتشاف الجاسوس. يفوز الجاسوس إذا بقي معه لاعب واحد فقط." }
+    ];
     
-    // offline
-    let currentRoleIndex = 0;
-    let hasSeen = false;
+    // ==================== متغيرات عامة ====================
+    let gameMode = null; // 'offline' or 'online'
+    let players = [], activePlayers = [], spyIndex = -1, currentLocation = "", selectedMapKey = 'public', selectedTime = 300;
+    let currentPlayerIndex = 0, hasSeenRole = false, timerInterval = null, gameActive = true;
+    let votes = {}, voteOrder = [], currentVoterIndex = 0;
     
-    // online
-    let currentRoomId = null;
-    let currentPlayerName = null;
-    let isHost = false;
-    let onlinePlayers = [];
-    let onlineSpyIndex = -1;
-    let onlineLocation = "";
-    let gameStarted = false;
-    let myRoleRevealedFlag = false;
-    let chatRef = null;
-    let voteTriggerListener = null;
-    
-    let votes = {};
-    let voteOrder = [];
-    let currentVoter = 0;
+    // متغيرات أونلاين
+    let currentRoomId = null, currentPlayerName = null, isHost = false;
+    let onlinePlayers = [], onlineSpyIndex = -1, onlineLocation = "", gameStarted = false;
+    let playersWhoSawRole = []; // اللي شافوا مهمتهم
+    let chatListener = null, voteTriggerListener = null;
     let isVotingActive = false;
 
     // ==================== دوال مساعدة ====================
-    function showNotification(msg) {
-        let n = document.createElement('div');
-        n.className = 'notification';
-        n.innerHTML = msg;
-        document.body.appendChild(n);
-        setTimeout(() => n.remove(), 3000);
-    }
-
-    function goHome() {
-        if (timerInterval) clearInterval(timerInterval);
-        if (currentRoomId) leaveRoom();
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('homeScreen').classList.add('active');
-        currentMode = null;
-    }
-
-    function resetToHome() {
-        goHome();
-    }
-
-    function toggleMenu() {
-        document.getElementById('sideMenu').classList.toggle('open');
-        document.getElementById('menuOverlay').classList.toggle('show');
-    }
-
-    function switchTheme(theme) {
-        if (theme === 'dark') document.body.style.background = "linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)";
-        if (theme === 'gold') document.body.style.background = "linear-gradient(135deg, #2a1a0a 0%, #3a2a1a 100%)";
-        if (theme === 'blue') document.body.style.background = "linear-gradient(135deg, #0a1a2a 0%, #1a2a3a 100%)";
-        toggleMenu();
-    }
-
-    function showHowTo() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('howtoScreen').classList.add('active');
-    }
-
-    // ==================== أوفلاين ====================
-    function startOffline() {
-        currentMode = 'offline';
-        buildMapList();
-        setupTimeSelector();
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('mapSelectionScreen').classList.add('active');
-    }
-
-    function buildMapList() {
-        const container = document.getElementById('mapList');
+    function toggleMenu() { document.getElementById('sideMenu').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
+    function navTo(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function showNotification(msg) { let n = document.createElement('div'); n.className = 'elimination-message'; n.innerHTML = msg; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
+    function switchTheme(theme) { document.body.className = 'theme-' + theme; toggleMenu(); const quickIntro = document.getElementById('quickIntro'); quickIntro.classList.add('show'); setTimeout(() => quickIntro.classList.remove('show'), 500); }
+    function resetGameToHome() { if(timerInterval) clearInterval(timerInterval); if(currentRoomId) leaveOnlineRoom(); navTo('homeScreen'); gameMode = null; }
+    function goHome() { resetGameToHome(); }
+    
+    // شرح اللعبة
+    function openHowtoVideo() {
+        navTo('howto');
+        const container = document.getElementById('videoContainer');
         container.innerHTML = '';
-        const cats = [
-            { key: 'public', name: 'أماكن عامة', icon: 'fa-city' },
-            { key: 'scifi', name: 'خيال علمي', icon: 'fa-atom' },
-            { key: 'travel', name: 'معالم سياحية', icon: 'fa-landmark' },
-            { key: 'home', name: 'المنزل', icon: 'fa-home' },
-            { key: 'cities', name: 'مدن عالمية', icon: 'fa-globe' },
-            { key: 'entertainment', name: 'ترفيه', icon: 'fa-gamepad' }
+        const welcomeDiv = document.createElement('div'); welcomeDiv.className = 'welcome-screen'; welcomeDiv.innerHTML = `<div class="welcome-icon"><i class="fas fa-user-secret"></i></div><div class="welcome-title">أهلاً بك في SPY</div><div class="welcome-sub">إليك شرح طريقة اللعب...</div>`;
+        container.appendChild(welcomeDiv);
+        const gridDiv = document.createElement('div'); gridDiv.className = 'info-grid';
+        howtoData.forEach(data => { const card = document.createElement('div'); card.className = 'info-card-item'; card.innerHTML = `<div class="card-icon"><i class="${data.icon}"></i></div><div class="card-content"><h3>${data.title}</h3><p>${data.desc}</p></div>`; gridDiv.appendChild(card); });
+        container.appendChild(gridDiv);
+        const timeline = document.createElement('div'); timeline.className = 'timeline-bar'; timeline.innerHTML = '<div class="timeline-progress"></div>'; container.appendChild(timeline);
+        const closeBtn = document.createElement('button'); closeBtn.className = 'main-btn close-howto-btn'; closeBtn.innerText = 'رجوع للرئيسية'; closeBtn.onclick = () => navTo('homeScreen'); container.appendChild(closeBtn);
+    }
+
+    // ==================== أوفلاين (نفس الكود الأصلي) ====================
+    function startOfflineMode() { gameMode = 'offline'; buildMapList(); setupTimeSelector(); buildPlayerList(); navTo('mapSelection'); }
+    function buildMapList() {
+        const container = document.getElementById('mapList'); container.innerHTML = '';
+        const categories = [
+            { key: 'public', name: 'أماكن عامة', icon: 'fa-city', count: MAP_DATA['public'].length },
+            { key: 'sci-fi', name: 'خيال علمي', icon: 'fa-atom', count: MAP_DATA['sci-fi'].length },
+            { key: 'travel', name: 'معالم سياحية', icon: 'fa-landmark', count: MAP_DATA['travel'].length },
+            { key: 'home', name: 'المنزل', icon: 'fa-home', count: MAP_DATA['home'].length },
+            { key: 'cities', name: 'مدن عالمية', icon: 'fa-globe', count: MAP_DATA['cities'].length },
+            { key: 'entertainment', name: 'ترفيه', icon: 'fa-gamepad', count: MAP_DATA['entertainment'].length }
         ];
-        cats.forEach(cat => {
-            const div = document.createElement('div');
-            div.className = 'map-category';
-            if (cat.key === selectedMapKey) div.classList.add('selected');
-            div.innerHTML = `<i class="fas ${cat.icon}"></i><span class="category-name">${cat.name}</span>`;
-            div.onclick = () => {
-                document.querySelectorAll('.map-category').forEach(c => c.classList.remove('selected'));
-                div.classList.add('selected');
-                selectedMapKey = cat.key;
-            };
+        categories.forEach(cat => {
+            const div = document.createElement('div'); div.className = 'map-category' + (cat.key === selectedMapKey ? ' selected' : ''); div.setAttribute('data-map', cat.key);
+            div.innerHTML = `<i class="fas ${cat.icon}"></i><span class="category-name">${cat.name}</span><span class="category-count">${cat.count} مكان</span>`;
+            div.onclick = () => { document.querySelectorAll('.map-category').forEach(c => c.classList.remove('selected')); div.classList.add('selected'); selectedMapKey = cat.key; };
             container.appendChild(div);
         });
     }
-
-    function setupTimeSelector() {
-        const btns = document.querySelectorAll('.time-btn');
-        btns.forEach(btn => {
-            btn.onclick = () => {
-                btns.forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                selectedTime = parseInt(btn.dataset.time);
-            };
-        });
-    }
-
-    function goToPlayersSetup() {
-        buildOfflinePlayersList();
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('playersSetupScreen').classList.add('active');
-    }
-
-    function goToMapSelection() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('mapSelectionScreen').classList.add('active');
-    }
-
-    function buildOfflinePlayersList() {
-        const container = document.getElementById('offlinePlayersContainer');
-        container.innerHTML = '';
-        for (let i = 0; i < 3; i++) {
-            const row = document.createElement('div');
-            row.className = 'player-row';
-            row.innerHTML = `<input type="text" placeholder="لاعب ${i+1}" class="offlinePlayerInput"><i class="fas fa-times remove-icon" onclick="this.parentElement.remove()"></i>`;
-            container.appendChild(row);
-        }
-    }
-
-    function addOfflinePlayer() {
-        const container = document.getElementById('offlinePlayersContainer');
-        const row = document.createElement('div');
-        row.className = 'player-row';
-        row.innerHTML = `<input type="text" placeholder="لاعب جديد" class="offlinePlayerInput"><i class="fas fa-times remove-icon" onclick="this.parentElement.remove()"></i>`;
-        container.appendChild(row);
-    }
-
+    function setupTimeSelector() { const btns = document.querySelectorAll('.time-btn'); btns.forEach(btn => btn.onclick = () => { btns.forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedTime = parseInt(btn.getAttribute('data-time')); }); }
+    function buildPlayerList() { const container = document.getElementById('list'); container.innerHTML = ''; for (let i = 0; i < 3; i++) { const row = document.createElement('div'); row.className = 'player-row'; row.innerHTML = `<i class="fas fa-times remove-icon" onclick="this.parentElement.remove()"></i><input type="text" placeholder="أضف اسمك هنا" class="p-name">`; container.appendChild(row); } }
+    function addPlayer() { const container = document.getElementById('list'); const row = document.createElement('div'); row.className = 'player-row'; row.innerHTML = `<i class="fas fa-times remove-icon" onclick="this.parentElement.remove()"></i><input type="text" placeholder="أضف اسمك هنا" class="p-name">`; container.appendChild(row); }
     function startOfflineGame() {
-        const inputs = document.querySelectorAll('#offlinePlayersContainer .offlinePlayerInput');
-        playersList = Array.from(inputs).map(i => i.value.trim()).filter(n => n !== "");
-        if (playersList.length < 3) {
-            showNotification("يلزم 3 لاعبين على الأقل");
-            return;
-        }
-        activePlayers = [...playersList];
-        const locationArray = MAPS[selectedMapKey];
-        currentLocation = locationArray[Math.floor(Math.random() * locationArray.length)];
-        spyIndex = Math.floor(Math.random() * playersList.length);
-        currentRoleIndex = 0;
-        hasSeen = false;
+        players = Array.from(document.querySelectorAll('.p-name')).map(i => i.value.trim()).filter(p => p !== "");
+        if (players.length < 3) { showNotification("يجب أن يكون 3 لاعبين على الأقل"); return; }
+        activePlayers = [...players];
+        const locationList = MAP_DATA[selectedMapKey];
+        currentLocation = locationList[Math.floor(Math.random() * locationList.length)];
+        spyIndex = Math.floor(Math.random() * players.length);
+        currentPlayerIndex = 0; hasSeenRole = false;
         showOfflineRoleScreen();
     }
-
     function showOfflineRoleScreen() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('rolesScreen').classList.add('active');
-        document.getElementById('rolePlayerName').innerText = playersList[currentRoleIndex];
-        const isSpy = (currentRoleIndex === spyIndex);
-        document.getElementById('roleHiddenContent').innerHTML = isSpy ?
-            `<i class="fas fa-user-secret" style="font-size: 3rem; color: #ff6b6b;"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان، حاول اكتشافه!</p>` :
-            `<i class="fas fa-map-marker-alt" style="font-size: 3rem; color: #ffd93d;"></i><h3>الموقع السري:</h3><div style="font-size: 1.8rem;">📍 ${currentLocation}</div>`;
-        document.getElementById('roleCard').classList.remove('show');
-        document.getElementById('roleReadyContainer').innerHTML = '';
-        hasSeen = false;
+        navTo('rolesScreen');
+        document.getElementById('turnText').innerText = players[currentPlayerIndex];
+        const roleContent = document.getElementById('roleContent');
+        roleContent.innerHTML = (currentPlayerIndex === spyIndex) ? `<i class="fas fa-user-secret fa-4x" style="color:red"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان. استمع جيداً للأسئلة وحاول اكتشافه.</p>` : `<i class="fas fa-map-marker-alt fa-3x" style="color:var(--primary)"></i><p>الموقع السري:</p><h1>${currentLocation}</h1>`;
+        document.getElementById('roleCard').classList.remove('pressed');
+        document.getElementById('roleNextContainer').innerHTML = '';
+        hasSeenRole = false;
+        attachPressEvents(document.getElementById('roleCard'));
     }
-
-    function revealMyRole() {
-        document.getElementById('roleCard').classList.add('show');
-        if (!hasSeen) {
-            hasSeen = true;
-            document.getElementById('roleReadyContainer').innerHTML = '<button class="btn btn-primary" onclick="nextOfflineRole()">التالي</button>';
-        }
+    function attachPressEvents(card) {
+        const startPress = (e) => { e.preventDefault(); if (!gameActive) return; card.classList.add('pressed'); if (!hasSeenRole) { hasSeenRole = true; document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="nextOfflinePlayer()">التالي</button>'; } };
+        const endPress = (e) => { e.preventDefault(); card.classList.remove('pressed'); };
+        card.addEventListener('mousedown', startPress); card.addEventListener('mouseup', endPress); card.addEventListener('mouseleave', endPress);
+        card.addEventListener('touchstart', startPress, { passive: false }); card.addEventListener('touchend', endPress); card.addEventListener('touchcancel', endPress);
     }
-
-    function nextOfflineRole() {
-        currentRoleIndex++;
-        if (currentRoleIndex < playersList.length) {
-            showOfflineRoleScreen();
-        } else {
-            startCountdownAndGameplay();
-        }
-    }
-
-    function startCountdownAndGameplay() {
-        let count = 5;
-        const overlay = document.createElement('div');
-        overlay.className = 'countdown-overlay';
-        overlay.innerText = count;
-        document.body.appendChild(overlay);
-        const interval = setInterval(() => {
-            count--;
-            if (count <= 0) {
-                clearInterval(interval);
-                overlay.remove();
-                startOfflineGameplay();
-            } else {
-                overlay.innerText = count;
-            }
-        }, 1000);
-    }
-
-    function startOfflineGameplay() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('gameplayScreen').classList.add('active');
-        updatePlayersListUI(playersList);
-        startTimer(selectedTime);
-        setupChatOffline();
-    }
-
+    function nextOfflinePlayer() { currentPlayerIndex++; if (currentPlayerIndex < players.length) showOfflineRoleScreen(); else startOfflineGameplay(); }
+    function startOfflineGameplay() { updatePlayersListDisplay(players); navTo('gameplay'); startTimer(selectedTime); setupChat('offline'); }
+    
     // ==================== أونلاين ====================
-    function showOnlineMenu() {
-        currentMode = 'online';
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('onlineMenuScreen').classList.add('active');
-    }
-
-    function backToOnlineMenu() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('onlineMenuScreen').classList.add('active');
-    }
-
-    function showCreateRoomUI() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('createRoomScreen').classList.add('active');
-    }
-
-    function showJoinRoomUI() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('joinRoomScreen').classList.add('active');
-    }
-
-    function createRoom() {
-        const name = document.getElementById('hostNameInput').value.trim();
-        if (!name) { showNotification("أدخل اسمك"); return; }
-        currentPlayerName = name;
-        isHost = true;
+    function showOnlineMenu() { gameMode = 'online'; navTo('onlineMenuScreen'); }
+    function backToOnlineMenu() { navTo('onlineMenuScreen'); }
+    function showCreateRoomUI() { navTo('createRoomScreen'); }
+    function showJoinRoomUI() { navTo('joinRoomScreen'); }
+    
+    function createOnlineRoom() {
+        let name = document.getElementById('onlineHostName').value.trim();
+        if(!name) { showNotification("أدخل اسمك"); return; }
+        currentPlayerName = name; isHost = true;
         currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        database.ref('rooms/' + currentRoomId).set({
-            players: [name],
-            host: name,
-            status: "waiting",
-            createdAt: Date.now()
-        });
-        listenToRoom();
-        document.getElementById('roomCodeDisplay').innerText = currentRoomId;
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('waitingRoomScreen').classList.add('active');
+        db.ref('rooms/' + currentRoomId).set({ players: [name], host: name, status: "waiting", createdAt: Date.now() });
+        listenToOnlineRoom();
+        document.getElementById('waitingRoomCodeDisplay').innerText = currentRoomId;
+        navTo('onlineWaitingScreen');
     }
-
-    function joinRoom() {
-        const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
-        const name = document.getElementById('joinNameInput').value.trim();
-        if (!code || !name) { showNotification("أدخل الكود والاسم"); return; }
-        database.ref('rooms/' + code).once('value', snap => {
-            if (!snap.exists()) { showNotification("الغرفة غير موجودة"); return; }
-            const room = snap.val();
-            if (room.status !== "waiting") { showNotification("اللعبة بدأت بالفعل"); return; }
-            if (room.players.includes(name)) { showNotification("الاسم موجود"); return; }
+    
+    function joinOnlineRoom() {
+        let code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
+        let name = document.getElementById('joinPlayerNameInput').value.trim();
+        if(!code || !name) { showNotification("أدخل الكود والاسم"); return; }
+        db.ref('rooms/' + code).once('value', snap => {
+            if(!snap.exists()) { showNotification("الغرفة غير موجودة"); return; }
+            let room = snap.val();
+            if(room.status !== "waiting") { showNotification("اللعبة بدأت بالفعل"); return; }
+            if(room.players.includes(name)) { showNotification("الاسم موجود"); return; }
             room.players.push(name);
-            database.ref('rooms/' + code).update({ players: room.players }).then(() => {
-                currentRoomId = code;
-                currentPlayerName = name;
-                isHost = false;
-                listenToRoom();
-                document.getElementById('roomCodeDisplay').innerText = code;
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById('waitingRoomScreen').classList.add('active');
+            db.ref('rooms/' + code).update({ players: room.players }).then(() => {
+                currentRoomId = code; currentPlayerName = name; isHost = false;
+                listenToOnlineRoom();
+                document.getElementById('waitingRoomCodeDisplay').innerText = code;
+                navTo('onlineWaitingScreen');
             });
         });
     }
-
-    function listenToRoom() {
-        database.ref('rooms/' + currentRoomId).on('value', snap => {
-            const room = snap.val();
-            if (!room) return;
+    
+    function listenToOnlineRoom() {
+        db.ref('rooms/' + currentRoomId).on('value', snap => {
+            let room = snap.val();
+            if(!room) return;
             onlinePlayers = room.players || [];
-            const container = document.getElementById('waitingPlayersList');
-            if (container) {
-                container.innerHTML = "<h3>اللاعبون:</h3>" + onlinePlayers.map(p => `<div class="player-item"><span>${p}</span>${p === room.host ? ' 👑' : ''}</div>`).join('');
-            }
-            const startBtn = document.getElementById('startGameHostBtn');
-            if (startBtn && isHost && onlinePlayers.length >= 3) startBtn.style.display = 'block';
-            else if (startBtn) startBtn.style.display = 'none';
-            
-            if (room.status === "playing" && !gameStarted) {
+            let container = document.getElementById('waitingPlayersList');
+            if(container) { container.innerHTML = "<h3>اللاعبون:</h3>" + onlinePlayers.map(p => `<div class="player-item"><span>${p}</span>${p === room.host ? ' 👑' : ''}</div>`).join(''); }
+            let startBtn = document.getElementById('startOnlineGameBtn');
+            if(startBtn && isHost && onlinePlayers.length >= 3) startBtn.style.display = 'block';
+            if(room.status === "playing" && !gameStarted) {
                 gameStarted = true;
                 onlineLocation = room.location;
                 onlineSpyIndex = room.spyIndex;
                 activePlayers = [...onlinePlayers];
+                playersWhoSawRole = [];
                 showOnlineRoleScreen();
             }
-            
-            if (room.voteTrigger && !isVotingActive) {
+            // التصويت: لو حد ضغط زر التصويت، الكل يخش
+            if(room.voteTrigger && !isVotingActive) {
                 isVotingActive = true;
-                startVotingPhase();
+                startOnlineVoting();
             }
-            
-            if (room.voteResult) {
-                showVoteResult(room.voteResult);
+            if(room.voteResults) {
+                showOnlineVoteResults(room.voteResults);
             }
         });
     }
-
-    function hostStartGame() {
-        if (!isHost) return;
-        const locationArray = MAPS[selectedMapKey || 'public'];
-        const randomLocation = locationArray[Math.floor(Math.random() * locationArray.length)];
-        const randomSpy = Math.floor(Math.random() * onlinePlayers.length);
-        database.ref('rooms/' + currentRoomId).update({
-            status: "playing",
-            location: randomLocation,
-            spyIndex: randomSpy
-        });
+    
+    function hostStartOnlineGame() {
+        if(!isHost) return;
+        let locationList = MAP_DATA[selectedMapKey || 'public'];
+        let randomLocation = locationList[Math.floor(Math.random() * locationList.length)];
+        let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
+        db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy });
     }
-
+    
     function showOnlineRoleScreen() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('rolesScreen').classList.add('active');
-        const myIndex = onlinePlayers.indexOf(currentPlayerName);
-        const isSpy = (myIndex === onlineSpyIndex);
-        document.getElementById('rolePlayerName').innerText = currentPlayerName;
-        document.getElementById('roleHiddenContent').innerHTML = isSpy ?
-            `<i class="fas fa-user-secret" style="font-size: 3rem; color: #ff6b6b;"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان</p>` :
-            `<i class="fas fa-map-marker-alt" style="font-size: 3rem; color: #ffd93d;"></i><h3>الموقع السري:</h3><div style="font-size: 1.8rem;">📍 ${onlineLocation}</div>`;
-        document.getElementById('roleCard').classList.remove('show');
-        document.getElementById('roleReadyContainer').innerHTML = '';
-        myRoleRevealedFlag = false;
+        navTo('rolesScreen');
+        let myIndex = onlinePlayers.indexOf(currentPlayerName);
+        let isSpy = (myIndex === onlineSpyIndex);
+        document.getElementById('turnText').innerText = currentPlayerName;
+        document.getElementById('roleContent').innerHTML = isSpy ? `<i class="fas fa-user-secret fa-4x" style="color:red"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان. استمع جيداً للأسئلة وحاول اكتشافه.</p>` : `<i class="fas fa-map-marker-alt fa-3x" style="color:var(--primary)"></i><p>الموقع السري:</p><h1>${onlineLocation}</h1>`;
+        document.getElementById('roleCard').classList.remove('pressed');
+        document.getElementById('roleNextContainer').innerHTML = '';
+        attachOnlinePressEvents(document.getElementById('roleCard'), myIndex);
     }
-
-    function revealMyRole() {
-        document.getElementById('roleCard').classList.add('show');
-        if (!myRoleRevealedFlag) {
-            myRoleRevealedFlag = true;
-            document.getElementById('roleReadyContainer').innerHTML = '<button class="btn btn-primary" onclick="sendOnlineReady()">✅ جاهز</button>';
-        }
+    
+    function attachOnlinePressEvents(card, playerIdx) {
+        const startPress = (e) => { e.preventDefault(); if (!gameActive) return; card.classList.add('pressed'); 
+            // لما يضغط يشوف دوره، نسجله في Firebase
+            db.ref('rooms/' + currentRoomId + '/seenPlayers').transaction(val => {
+                let seen = val || [];
+                if(!seen.includes(currentPlayerName)) seen.push(currentPlayerName);
+                return seen;
+            });
+            // نفحص لو كل اللاعبين شافوا أدوارهم
+            db.ref('rooms/' + currentRoomId + '/seenPlayers').once('value', snap => {
+                let seen = snap.val() || [];
+                if(seen.length >= onlinePlayers.length) {
+                    // كل اللاعبين شافوا أدوارهم، نبدأ العد التنازلي
+                    startGlobalCountdown();
+                }
+            });
+        };
+        const endPress = (e) => { e.preventDefault(); card.classList.remove('pressed'); };
+        card.addEventListener('mousedown', startPress); card.addEventListener('mouseup', endPress); card.addEventListener('mouseleave', endPress);
+        card.addEventListener('touchstart', startPress, { passive: false }); card.addEventListener('touchend', endPress); card.addEventListener('touchcancel', endPress);
     }
-
-    function sendOnlineReady() {
-        database.ref('rooms/' + currentRoomId + '/readyCount').transaction(val => (val || 0) + 1);
-        database.ref('rooms/' + currentRoomId + '/readyCount').once('value', snap => {
-            if (snap.val() >= onlinePlayers.length) {
-                startOnlineCountdown();
-            }
+    
+    function startGlobalCountdown() {
+        // نتأكد إن العد بدأ مرة واحدة بس
+        db.ref('rooms/' + currentRoomId + '/countdownStarted').once('value', snap => {
+            if(snap.val()) return;
+            db.ref('rooms/' + currentRoomId + '/countdownStarted').set(true);
+            let count = 5;
+            const overlay = document.createElement('div'); overlay.className = 'countdown-overlay'; overlay.innerText = count; document.body.appendChild(overlay);
+            const interval = setInterval(() => { count--; if(count <= 0) { clearInterval(interval); overlay.remove(); startOnlineGameplay(); } else overlay.innerText = count; }, 1000);
         });
     }
-
-    function startOnlineCountdown() {
-        let count = 5;
-        const overlay = document.createElement('div');
-        overlay.className = 'countdown-overlay';
-        overlay.innerText = count;
-        document.body.appendChild(overlay);
-        const interval = setInterval(() => {
-            count--;
-            if (count <= 0) {
-                clearInterval(interval);
-                overlay.remove();
-                startOnlineGameplay();
-            } else {
-                overlay.innerText = count;
-            }
-        }, 1000);
-    }
-
+    
     function startOnlineGameplay() {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('gameplayScreen').classList.add('active');
-        updatePlayersListUI(onlinePlayers);
+        navTo('gameplay');
+        updatePlayersListDisplay(onlinePlayers);
         startTimer(300);
-        setupChatOnline();
+        setupChat('online');
     }
-
+    
     // ==================== دوال مشتركة ====================
-    function updatePlayersListUI(list) {
-        const container = document.getElementById('gamePlayersList');
-        container.innerHTML = list.map(p => `<div style="padding: 10px; background: rgba(0,0,0,0.4); margin: 5px 0; border-radius: 15px;">🎭 ${p}</div>`).join('');
-    }
-
+    function updatePlayersListDisplay(list) { document.getElementById('playersNamesList').innerHTML = list.map(p => `<div style="padding:8px; background:var(--card-bg); margin:5px 0; border-radius:12px;">🎭 ${p}</div>`).join(''); }
+    
     function startTimer(seconds) {
-        if (timerInterval) clearInterval(timerInterval);
+        if(timerInterval) clearInterval(timerInterval);
         let remaining = seconds;
-        const timerEl = document.getElementById('gameTimer');
-        function update() {
-            const m = Math.floor(remaining / 60);
-            const s = remaining % 60;
-            timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
+        const timerEl = document.getElementById('timer');
+        function update() { let m = Math.floor(remaining/60), s = remaining%60; timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
         update();
-        timerInterval = setInterval(() => {
-            if (remaining <= 0) {
-                clearInterval(timerInterval);
-                triggerVote();
-            } else {
-                remaining--;
-                update();
-            }
-        }, 1000);
+        timerInterval = setInterval(() => { if(remaining <= 0) { clearInterval(timerInterval); triggerVote(); } else { remaining--; update(); } }, 1000);
     }
-
-    function setupChatOffline() {
-        const container = document.getElementById('chatMessages');
+    
+    function setupChat(mode) {
+        let container = document.getElementById('chatMessages');
         container.innerHTML = '<div>💬 دخلت غرفة النقاش</div>';
-        window.sendMessage = function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-            const div = document.createElement('div');
-            div.innerHTML = `<strong>لاعب:</strong> ${text}`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-            input.value = '';
-        };
-    }
-
-    function setupChatOnline() {
-        const container = document.getElementById('chatMessages');
-        container.innerHTML = '<div>💬 دخلت غرفة النقاش</div>';
-        if (chatRef) database.ref('rooms/' + currentRoomId + '/chats').off();
-        database.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => {
-            const msg = snap.val();
-            if (msg) {
-                const div = document.createElement('div');
-                div.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`;
-                container.appendChild(div);
-                container.scrollTop = container.scrollHeight;
-            }
-        });
-        window.sendMessage = function() {
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-            database.ref('rooms/' + currentRoomId + '/chats').push({ name: currentPlayerName, text: text });
-            input.value = '';
-        };
-    }
-
-    function triggerVote() {
-        if (timerInterval) clearInterval(timerInterval);
-        if (currentMode === 'online') {
-            database.ref('rooms/' + currentRoomId).update({ voteTrigger: true });
-        } else {
-            startVotingPhase();
+        if(mode === 'online' && currentRoomId) {
+            if(chatListener) db.ref('rooms/' + currentRoomId + '/chats').off();
+            chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => { let msg = snap.val(); if(msg) { let div = document.createElement('div'); div.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`; container.appendChild(div); container.scrollTop = container.scrollHeight; } });
         }
     }
-
+    
+    function sendChatMessage() {
+        let input = document.getElementById('chatInput');
+        let text = input.value.trim();
+        if(!text) return;
+        if(gameMode === 'offline') {
+            let container = document.getElementById('chatMessages');
+            let div = document.createElement('div'); div.innerHTML = `<strong>لاعب:</strong> ${text}`; container.appendChild(div); container.scrollTop = container.scrollHeight;
+        } else if(currentRoomId) { db.ref('rooms/' + currentRoomId + '/chats').push({ name: currentPlayerName, text: text }); }
+        input.value = '';
+    }
+    
+    function triggerVote() {
+        if(timerInterval) clearInterval(timerInterval);
+        if(gameMode === 'online') { db.ref('rooms/' + currentRoomId).update({ voteTrigger: true }); }
+        else { startVotingPhase(); }
+    }
+    
     function startVotingPhase() {
-        votes = {};
-        voteOrder = [...activePlayers];
-        currentVoter = 0;
+        votes = {}; voteOrder = [...activePlayers]; currentVoterIndex = 0;
         showNextVoter();
     }
-
-    function showNextVoter() {
-        if (currentVoter >= voteOrder.length) {
-            calculateWinner();
-            return;
-        }
-        const voter = voteOrder[currentVoter];
-        const others = activePlayers.filter(p => p !== voter);
-        const container = document.getElementById('voteContainer');
-        container.innerHTML = `<h3>🗳️ دور ${voter}</h3><p>اختر من تشتبه به:</p>`;
-        others.forEach(p => {
-            const btn = document.createElement('div');
-            btn.className = 'vote-option';
-            btn.innerText = p;
-            btn.onclick = () => {
-                votes[voter] = p;
-                currentVoter++;
-                showNextVoter();
-            };
-            container.appendChild(btn);
-        });
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('voteScreen').classList.add('active');
+    
+    function startOnlineVoting() {
+        votes = {}; voteOrder = [...activePlayers]; currentVoterIndex = 0;
+        showNextVoter();
     }
-
-    function calculateWinner() {
-        const voteCount = {};
+    
+    function showNextVoter() {
+        if(currentVoterIndex >= voteOrder.length) { calculateVoteResult(); return; }
+        let voter = voteOrder[currentVoterIndex];
+        let others = activePlayers.filter(p => p !== voter);
+        let container = document.getElementById('voteTurnContainer');
+        container.innerHTML = `<div class="vote-turn-card"><div class="vote-turn-name">🎭 ${voter}</div><div class="vote-options"></div><div class="vote-progress">الدور ${currentVoterIndex + 1} من ${voteOrder.length}</div></div>`;
+        let optionsContainer = container.querySelector('.vote-options');
+        others.forEach(p => { let btn = document.createElement('div'); btn.className = 'vote-option-btn'; btn.innerText = p; btn.onclick = () => { votes[voter] = p; currentVoterIndex++; showNextVoter(); }; optionsContainer.appendChild(btn); });
+        navTo('votePage');
+    }
+    
+    function calculateVoteResult() {
+        let voteCount = {};
         Object.values(votes).forEach(v => voteCount[v] = (voteCount[v] || 0) + 1);
         let maxVotes = 0, accused = null;
-        for (let [player, count] of Object.entries(voteCount)) {
-            if (count > maxVotes) {
-                maxVotes = count;
-                accused = player;
-            }
-        }
-        const accusedIndex = activePlayers.indexOf(accused);
-        const currentSpy = (currentMode === 'offline') ? spyIndex : onlineSpyIndex;
-        const isSpy = (accusedIndex === currentSpy);
-        const resultMsg = isSpy ? `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!` : `❌ تم اتهام ${accused} (بريء)! الجاسوس ينجو!`;
-        if (currentMode === 'online') {
-            database.ref('rooms/' + currentRoomId).update({ voteResult: { accused: accused, isSpy: isSpy, msg: resultMsg } });
-        }
-        showResultScreen(isSpy, resultMsg);
+        for(let [player, count] of Object.entries(voteCount)) if(count > maxVotes) { maxVotes = count; accused = player; }
+        let accusedIndex = activePlayers.indexOf(accused);
+        let currentSpy = (gameMode === 'offline') ? spyIndex : onlineSpyIndex;
+        let isSpy = (accusedIndex === currentSpy);
+        let resultMsg = isSpy ? `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!` : `❌ تم اتهام ${accused} (بريء)! الجاسوس ينجو!`;
+        document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3>${Object.entries(voteCount).map(([player, count]) => `<div class="vote-result-row"><span>${player}</span><span class="vote-count">${count} صوت</span></div>`).join('')}<hr><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${accused}</h3><p>حصل على ${maxVotes} صوت</p><p>${resultMsg}</p></div></div>`;
+        if(gameMode === 'online') db.ref('rooms/' + currentRoomId).update({ voteResults: { accused: accused, isSpy: isSpy, resultMsg: resultMsg } });
+        navTo('voteResultsPage');
     }
-
-    function showVoteResult(data) {
-        showResultScreen(data.isSpy, data.msg);
+    
+    function showOnlineVoteResults(data) {
+        document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${data.accused}</h3><p>${data.resultMsg}</p></div></div>`;
+        navTo('voteResultsPage');
     }
-
-    function showResultScreen(isSpy, msg) {
-        document.getElementById('resultTitle').innerHTML = isSpy ? "🎉 فوز العملاء!" : "💀 الجاسوس ينجو!";
-        document.getElementById('resultMessage').innerHTML = `<p>${msg}</p>`;
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('resultScreen').classList.add('active');
-        if (timerInterval) clearInterval(timerInterval);
-    }
-
-    function leaveRoom() {
-        if (currentRoomId) database.ref('rooms/' + currentRoomId).remove();
-        currentRoomId = null;
-    }
-
-    // ربط الدوال العامة
-    window.revealMyRole = revealMyRole;
-    window.nextOfflineRole = nextOfflineRole;
-    window.sendOnlineReady = sendOnlineReady;
+    
+    function processVoteResult() { resetGameToHome(); }
+    
+    function leaveOnlineRoom() { if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); currentRoomId = null; navTo('homeScreen'); }
+    
+    // ربط الدوال
+    window.attachPressEvents = attachPressEvents;
+    window.nextOfflinePlayer = nextOfflinePlayer;
     window.triggerVote = triggerVote;
-    window.sendMessage = sendMessage;
+    window.processVoteResult = processVoteResult;
+    window.sendChatMessage = sendChatMessage;
+    window.startOfflineMode = startOfflineMode;
+    window.showOnlineMenu = showOnlineMenu;
+    window.showCreateRoomUI = showCreateRoomUI;
+    window.showJoinRoomUI = showJoinRoomUI;
+    window.createOnlineRoom = createOnlineRoom;
+    window.joinOnlineRoom = joinOnlineRoom;
+    window.hostStartOnlineGame = hostStartOnlineGame;
+    window.leaveOnlineRoom = leaveOnlineRoom;
+    window.backToOnlineMenu = backToOnlineMenu;
+    window.goHome = goHome;
+    window.resetGameToHome = resetGameToHome;
+    window.openHowtoVideo = openHowtoVideo;
+    window.toggleMenu = toggleMenu;
+    window.switchTheme = switchTheme;
+    window.addPlayer = addPlayer;
 </script>
 
-<!-- Intro Animation -->
-<div class="intro-animation">
-    <div><i class="fas fa-user-secret" style="font-size: 5rem; color: #ffd93d;"></i></div>
-    <div style="margin-top: 20px;">
-        <span class="letter" style="animation-delay: 0.2s;">S</span>
-        <span class="letter" style="animation-delay: 0.5s;">P</span>
-        <span class="letter" style="animation-delay: 0.8s;">Y</span>
+<div id="intro" style="position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: introFadeOut 0.5s forwards; animation-delay: 3.5s;">
+    <div style="font-size: 6rem; animation: iconPulse 1s ease-out;"><i class="fas fa-user-secret" style="color: #ffffff;"></i></div>
+    <div style="display: flex; flex-direction: row-reverse; margin-top: 30px;">
+        <span style="font-family: 'Orbitron'; font-size: 4rem; font-weight: 900; margin: 0 10px; opacity: 0; transform: translateY(30px); animation: letterReveal 0.4s forwards; animation-delay: 1.2s; color: #ffffff;">S</span>
+        <span style="font-family: 'Orbitron'; font-size: 4rem; font-weight: 900; margin: 0 10px; opacity: 0; transform: translateY(30px); animation: letterReveal 0.4s forwards; animation-delay: 1.6s; color: #ffffff;">P</span>
+        <span style="font-family: 'Orbitron'; font-size: 4rem; font-weight: 900; margin: 0 10px; opacity: 0; transform: translateY(30px); animation: letterReveal 0.4s forwards; animation-delay: 2.0s; color: #ffffff;">Y</span>
     </div>
-    <div style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">MOHAMED ZIDAN</div>
+    <div style="margin-top: 40px; font-size: 1rem; letter-spacing: 3px; opacity: 0; animation: fadeIn 0.5s forwards; animation-delay: 2.5s; color: #ffffff; font-family: 'Orbitron';">MOHAMED ZIDAN</div>
 </div>
+<style>
+    @keyframes introFadeOut { to { opacity: 0; visibility: hidden; } }
+    @keyframes iconPulse { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes letterReveal { to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { to { opacity: 1; } }
+</style>
 
 </body>
 </html>
