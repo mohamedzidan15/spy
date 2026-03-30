@@ -8,48 +8,185 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cairo:wght@400;700&family=Amiri:wght@400;700&family=Press+Start+2P&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { min-height: 100vh; transition: 0.3s; overflow-x: hidden; font-family: 'Cairo', sans-serif; }
-        .app-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(0,0,0,0.8); }
-        .logo { font-weight: 900; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cairo:wght@400;700&family=Amiri:wght@400;700&family=Press+Start+2P&family=Creepster&family=Monoton&family=Rajdhani:wght@400;700&display=swap');
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
+        body { margin: 0; min-height: 100vh; transition: 0.3s; position: relative; overflow-x: hidden; }
+        
+        .app-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        .logo { font-weight: 900; letter-spacing: 2px; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; }
         .menu-icon { font-size: 1.5rem; cursor: pointer; }
-        .screen { display: none; position: fixed; top: 70px; left: 0; right: 0; bottom: 0; overflow-y: auto; padding: 20px; z-index: 10; }
+        .screen {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
+            padding: 20px;
+            z-index: 10;
+        }
         .screen.active { display: block; }
-        .main-btn { border: none; padding: 14px; font-weight: 900; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.2s; text-align: center; border-radius: 30px; }
+        .main-btn {
+            border: none;
+            padding: 14px;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: 0.2s;
+            text-align: center;
+        }
         .main-btn:active { transform: scale(0.97); }
-        .card { background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border-radius: 24px; padding: 20px; margin: 15px 0; border: 1px solid rgba(255,255,255,0.2); }
-        input { width: 100%; padding: 12px; border-radius: 30px; border: none; background: rgba(255,255,255,0.2); color: white; margin: 10px 0; text-align: right; }
-        .room-code { font-size: 2rem; text-align: center; letter-spacing: 5px; background: var(--primary, #ffd93d); color: #000; padding: 15px; border-radius: 20px; font-weight: bold; }
-        .players-list { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 15px; margin: 15px 0; }
-        .player-item { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
-        .role-card { background: rgba(0,0,0,0.9); border-radius: 30px; padding: 40px; text-align: center; cursor: pointer; transition: 0.1s; border: 2px solid var(--primary, #ffd93d); }
-        .role-card:active { transform: scale(0.98); }
-        .hidden-content { display: none; }
-        .role-card.show .hidden-content { display: block; }
+        .secondary-btn { background: transparent; }
+        
+        .video-container {
+            position: relative;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .welcome-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+            animation: welcomeFadeOut 2s ease-in-out forwards;
+            z-index: 20;
+        }
+        @keyframes welcomeFadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: gridReveal 0.5s ease-out forwards;
+            animation-delay: 2s;
+        }
+        @keyframes gridReveal { to { opacity: 1; } }
+        .info-card-item {
+            background: var(--card-bg, rgba(0,0,0,0.6));
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transform: translateX(-50px);
+            opacity: 0;
+            animation: slideInCard 0.5s ease-out forwards;
+        }
+        @keyframes slideInCard {
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .info-card-item:nth-child(1) { animation-delay: 2.2s; }
+        .info-card-item:nth-child(2) { animation-delay: 2.5s; }
+        .info-card-item:nth-child(3) { animation-delay: 2.8s; }
+        .info-card-item:nth-child(4) { animation-delay: 3.1s; }
+        .info-card-item:nth-child(5) { animation-delay: 3.4s; }
+        
+        .map-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .map-category {
+            background: var(--card-bg, rgba(0,0,0,0.6));
+            border-radius: 24px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .map-category.selected {
+            border-color: var(--primary, #fff);
+            background: rgba(255,255,255,0.1);
+        }
+        .map-category i { font-size: 2rem; width: 50px; text-align: center; color: var(--primary, #fff); }
+        .map-category .category-name { font-size: 1.2rem; font-weight: bold; flex: 1; }
+        
+        .role-card {
+            width: 100%;
+            max-width: 340px;
+            min-height: 380px;
+            background: var(--card-bg, rgba(0,0,0,0.6));
+            border-radius: 32px;
+            border: 2px solid var(--primary, #fff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            padding: 20px;
+            margin: 0 auto;
+        }
+        .role-card .hidden-content { display: none; }
+        .role-card.show .hidden-content { display: flex; flex-direction: column; align-items: center; }
         .role-card.show .front-content { display: none; }
-        .timer { font-size: 3rem; text-align: center; font-family: monospace; margin: 20px 0; }
-        .chat-container { background: rgba(0,0,0,0.7); border-radius: 20px; height: 200px; display: flex; flex-direction: column; margin-top: 15px; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 10px; font-size: 0.9rem; }
+        
+        .timer-text { font-size: 4rem; text-align: center; margin: 40px 0; font-family: monospace; font-weight: bold; }
+        .player-row {
+            background: var(--card-bg, rgba(0,0,0,0.6));
+            padding: 12px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .player-row input { background: none; border: none; color: #fff; flex: 1; font-size: 1rem; text-align: right; outline: none; }
+        .remove-icon { margin-left: 10px; cursor: pointer; color: var(--primary); }
+        .vote-option-btn { padding: 15px; border-radius: 25px; margin: 10px 0; text-align: center; background: rgba(0,0,0,0.5); cursor: pointer; }
+        .players-list { background: var(--card-bg, rgba(0,0,0,0.6)); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
+        .chat-container { background: rgba(0,0,0,0.5); border-radius: 20px; height: 180px; display: flex; flex-direction: column; margin: 15px 0; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 10px; font-size: 0.85rem; }
         .chat-input-area { display: flex; padding: 10px; gap: 10px; border-top: 1px solid rgba(255,255,255,0.2); }
-        .chat-input-area input { flex: 1; margin: 0; padding: 10px; }
-        .chat-input-area button { width: auto; padding: 10px 20px; margin: 0; }
-        .vote-option { background: rgba(255,255,255,0.1); padding: 12px; margin: 8px 0; border-radius: 50px; text-align: center; cursor: pointer; }
-        .notification { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary, #ffd93d); color: #000; padding: 15px; border-radius: 50px; text-align: center; z-index: 1000; animation: slideUp 0.3s ease; font-weight: bold; }
-        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .countdown { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 5rem; color: var(--primary); z-index: 2000; text-shadow: 0 0 20px black; }
-        .side-menu { position: fixed; top: 0; right: -280px; width: 280px; z-index: 2000; transition: 0.4s; padding: 80px 20px 30px; background: rgba(0,0,0,0.95); border-left: 2px solid var(--primary); height: 100%; }
+        .chat-input-area input { flex: 1; background: rgba(0,0,0,0.5); border: none; color: white; padding: 8px; border-radius: 20px; }
+        .side-menu { position: fixed; top: 0; right: -300px; width: 280px; z-index: 2000; transition: 0.4s; padding: 80px 20px 30px; background: var(--card-bg, #0a0a0f); border-left: 2px solid var(--primary); }
         .side-menu.open { right: 0; }
         .menu-overlay { position: fixed; inset: 0; z-index: 1999; display: none; background: rgba(0,0,0,0.8); }
         .menu-overlay.show { display: block; }
-        .intro-animation { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: fadeOut 0.5s forwards; animation-delay: 2.5s; }
-        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+        .notification { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--primary); color: #000; padding: 15px; border-radius: 50px; text-align: center; z-index: 1000; animation: slideUp 0.3s ease; font-weight: bold; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .countdown-overlay { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 5rem; color: var(--primary); z-index: 2000; text-shadow: 0 0 20px black; background: rgba(0,0,0,0.7); padding: 30px; border-radius: 50px; }
+        .room-code-display { font-size: 2rem; text-align: center; letter-spacing: 5px; background: var(--primary); color: #000; padding: 15px; border-radius: 20px; font-weight: bold; margin: 15px 0; }
         
-        body.theme-cinema { --primary: #ffd93d; background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%); color: white; }
-        body.theme-newspaper { --primary: #d4af7a; background: #1a140e; color: #d4af7a; }
-        body.theme-warzone { --primary: #8b7355; background: #0f0c08; color: #8b7355; }
-        body.theme-hologram { --primary: #00ccff; background: #03030f; color: #00ccff; }
-        body.theme-cartoon { --primary: #ff9999; background: #1a0f0f; color: #ff9999; }
+        body.theme-cinema { --primary: #ffd93d; --card-bg: rgba(0,0,0,0.6); background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%); color: #ffd93d; }
+        body.theme-newspaper { --primary: #d4af7a; --card-bg: rgba(0,0,0,0.6); background: #1a140e; color: #d4af7a; }
+        body.theme-warzone { --primary: #8b7355; --card-bg: rgba(0,0,0,0.7); background: #0f0c08; color: #8b7355; }
+        body.theme-hologram { --primary: #00ccff; --card-bg: rgba(0,204,255,0.1); background: #03030f; color: #00ccff; }
+        body.theme-cartoon { --primary: #ff9999; --card-bg: rgba(0,0,0,0.5); background: #1a0f0f; color: #ff9999; }
+        
+        .intro-animation { position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: introFadeOut 0.5s forwards; animation-delay: 3.5s; }
+        @keyframes introFadeOut { to { opacity: 0; visibility: hidden; } }
+        @keyframes letterReveal { to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="theme-cinema">
@@ -62,7 +199,7 @@
 
 <div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="side-menu" id="sideMenu">
-    <h2 style="color: var(--primary);">⚙️ الإعدادات</h2>
+    <h2 style="font-family: 'Orbitron'; color: var(--primary); margin-bottom: 20px;">الإعدادات</h2>
     <button class="main-btn" onclick="switchTheme('cinema')">🎬 سينمائي</button>
     <button class="main-btn" onclick="switchTheme('newspaper')">📰 جريدة قديمة</button>
     <button class="main-btn" onclick="switchTheme('warzone')">⚔️ حرب</button>
@@ -70,129 +207,125 @@
     <button class="main-btn" onclick="switchTheme('cartoon')">🎨 كارتون</button>
     <hr style="margin: 15px 0; border-color: #333;">
     <p>تصميم: Mohamed Zidan</p>
-    <button class="main-btn" onclick="resetGame()" style="background:#333;">الرئيسية</button>
+    <button class="main-btn" onclick="resetToHome()" style="background: #333;">الرئيسية</button>
 </div>
 
-<!-- شاشة البداية -->
+<!-- الشاشات -->
 <div id="homeScreen" class="screen active">
     <div class="home-content" style="text-align: center; padding-top: 50px;">
         <i class="fas fa-user-secret" style="font-size: 100px; color: var(--primary);"></i>
         <h1 style="font-family: 'Orbitron'; margin: 30px 0;">SPY</h1>
         <div style="max-width: 300px; margin: auto;">
-            <button class="main-btn" onclick="selectMode('offline')">📱 لعبة أوفلاين (جهاز واحد)</button>
-            <button class="main-btn" onclick="selectMode('online')">🌐 لعبة أونلاين (مع الصحاب)</button>
-            <button class="main-btn secondary-btn" onclick="showHowTo()">📖 شرح اللعبة</button>
+            <button class="main-btn" onclick="startOfflineMode()">📱 لعبة أوفلاين (جهاز واحد)</button>
+            <button class="main-btn" onclick="showOnlineMenu()">🌐 لعبة أونلاين (مع الصحاب)</button>
+            <button class="main-btn secondary-btn" onclick="openHowtoVideo()">📖 شرح اللعبة</button>
         </div>
     </div>
 </div>
 
-<!-- شاشة شرح اللعبة -->
-<div id="howtoScreen" class="screen">
-    <div class="card" style="text-align: center;">
-        <h2>🎮 طريقة اللعب</h2>
-        <p style="margin: 15px 0;">🔹 كل لاعب له دور سري: جاسوس أو عميل<br>
-        🔹 العميل يعرف المكان السري، الجاسوس لا يعرفه<br>
-        🔹 وقت النقاش: اسألوا بعض لتكتشفوا الجاسوس<br>
-        🔹 في التصويت: كل واحد يصوت على المشتبه به<br>
-        🔹 إذا تم اكتشاف الجاسوس → العملاء يفوزون<br>
-        🔹 إذا بقي الجاسوس لوحده → الجاسوس يفوز</p>
-        <h3 style="margin-top: 20px;">🌐 طريقة اللعب الأونلاين:</h3>
-        <p>1️⃣ شخص يضغط "إنشاء غرفة" ويحصل على كود<br>
-        2️⃣ الأصدقاء يضغطون "انضمام" ويدخلون نفس الكود<br>
-        3️⃣ المضيف يبدأ اللعبة بعد اكتمال اللاعبين<br>
-        4️⃣ كل واحد يشوف دوره بس على هاتفه<br>
-        5️⃣ يتناقشوا في الشات المدمج<br>
-        6️⃣ يبدأ التصويت وتظهر النتيجة للجميع</p>
-        <button class="main-btn" onclick="navTo('homeScreen')">رجوع</button>
+<div id="howto" class="screen">
+    <div class="video-container" id="videoContainer"></div>
+</div>
+
+<!-- أوفلاين: اختيار الأماكن -->
+<div id="mapSelection" class="screen">
+    <h2 style="text-align: center;">اختر مسرح الجريمة</h2>
+    <div class="map-list" id="mapList"></div>
+    <div style="margin: 20px 0;">
+        <p>⏱️ مدة النقاش:</p>
+        <div class="time-selector" id="timeSelector" style="display: flex; gap: 10px;">
+            <div class="time-btn" data-time="120" style="padding:10px; background:rgba(0,0,0,0.5); border-radius:20px; cursor:pointer;">2 دقائق</div>
+            <div class="time-btn selected" data-time="300" style="padding:10px; background:rgba(0,0,0,0.5); border-radius:20px; cursor:pointer;">5 دقائق</div>
+            <div class="time-btn" data-time="600" style="padding:10px; background:rgba(0,0,0,0.5); border-radius:20px; cursor:pointer;">10 دقائق</div>
+        </div>
     </div>
+    <button class="main-btn" onclick="navTo('playerSetup')">التالي</button>
 </div>
 
-<!-- شاشة اختيار أوفلاين -->
-<div id="offlineSetupScreen" class="screen">
-    <h2 style="text-align: center;">👥 إعداد اللاعبين</h2>
-    <div class="card" id="offlinePlayersList"></div>
-    <button class="main-btn" onclick="addOfflinePlayer()">+ إضافة لاعب</button>
-    <button class="main-btn" onclick="startOfflineGame()">🎯 بدء اللعبة</button>
-    <button class="main-btn secondary-btn" onclick="navTo('homeScreen')">رجوع</button>
+<div id="playerSetup" class="screen">
+    <h2 style="text-align: center;">تسجيل العملاء</h2>
+    <div id="list" style="margin-bottom: 15px;"></div>
+    <button class="main-btn" style="background: #222;" onclick="addPlayer()">+ إضافة لاعب</button>
+    <button class="main-btn" onclick="startOfflineGame()">توزيع الهويات</button>
 </div>
 
-<!-- شاشة أونلاين - إنشاء/انضمام -->
-<div id="onlineLobbyScreen" class="screen">
-    <div class="card" style="text-align: center;">
-        <button class="main-btn" onclick="showCreateRoomUI()">➕ إنشاء غرفة جديدة</button>
-        <button class="main-btn" onclick="showJoinRoomUI()">🔗 الانضمام إلى غرفة</button>
+<!-- أونلاين: شاشات -->
+<div id="onlineMenuScreen" class="screen">
+    <div class="card" style="text-align: center; background: var(--card-bg); border-radius: 24px; padding: 30px;">
+        <button class="main-btn" onclick="showCreateRoom()">➕ إنشاء غرفة جديدة</button>
+        <button class="main-btn" onclick="showJoinRoom()">🔗 الانضمام إلى غرفة</button>
         <button class="main-btn secondary-btn" onclick="navTo('homeScreen')">رجوع</button>
     </div>
 </div>
 
 <div id="createRoomScreen" class="screen">
     <div class="card">
-        <input type="text" id="onlinePlayerName" placeholder="اسمك">
+        <input type="text" id="onlineHostName" placeholder="اسمك" style="width:100%; padding:12px; border-radius:30px;">
         <button class="main-btn" onclick="createOnlineRoom()">إنشاء غرفة</button>
-        <button class="main-btn secondary-btn" onclick="navTo('onlineLobbyScreen')">رجوع</button>
+        <button class="main-btn secondary-btn" onclick="navTo('onlineMenuScreen')">رجوع</button>
     </div>
 </div>
 
 <div id="joinRoomScreen" class="screen">
     <div class="card">
-        <input type="text" id="joinRoomCodeInput" placeholder="كود الغرفة" maxlength="6" style="text-transform:uppercase">
+        <input type="text" id="joinRoomCode" placeholder="كود الغرفة" maxlength="6" style="text-transform:uppercase">
         <input type="text" id="joinPlayerName" placeholder="اسمك">
         <button class="main-btn" onclick="joinOnlineRoom()">انضمام</button>
-        <button class="main-btn secondary-btn" onclick="navTo('onlineLobbyScreen')">رجوع</button>
+        <button class="main-btn secondary-btn" onclick="navTo('onlineMenuScreen')">رجوع</button>
     </div>
 </div>
 
-<div id="waitingRoomScreen" class="screen">
-    <div class="card">
-        <div style="text-align:center">
-            <div>كود الغرفة</div>
-            <div class="room-code" id="waitingRoomCode">-----</div>
-        </div>
+<div id="onlineWaitingScreen" class="screen">
+    <div class="card" style="text-align: center;">
+        <div>كود الغرفة</div>
+        <div class="room-code-display" id="waitingRoomCode">-----</div>
         <div class="players-list" id="waitingPlayersList"></div>
-        <button class="main-btn" id="startOnlineGameBtn" style="display:none" onclick="startOnlineGame()">🚀 بدء اللعبة</button>
+        <button class="main-btn" id="startOnlineGameBtn" style="display:none" onclick="hostStartGame()">🎯 بدء اللعبة</button>
         <button class="main-btn secondary-btn" onclick="leaveOnlineRoom()">مغادرة</button>
     </div>
 </div>
 
-<!-- شاشة توزيع الأدوار (أونلاين وأوفلاين) -->
-<div id="roleDistributionScreen" class="screen">
-    <h2 id="rolePlayerName" style="text-align: center;"></h2>
-    <div class="role-card" id="roleCard" onclick="revealMyRole()">
-        <div class="front-content">
-            <i class="fas fa-fingerprint" style="font-size: 4rem;"></i>
-            <p>👆 اضغط لرؤية دورك</p>
+<!-- شاشة توزيع الأدوار (مشتركة) -->
+<div id="rolesScreen" class="screen">
+    <h2 id="turnText" style="text-align: center; color: var(--primary);"></h2>
+    <div class="card-container" style="display: flex; justify-content: center;">
+        <div class="role-card" id="roleCard">
+            <div class="front-content">
+                <i class="fas fa-fingerprint fingerprint-icon" style="font-size: 4rem;"></i>
+                <p>اضغط لرؤية مهمتك</p>
+            </div>
+            <div class="hidden-content" id="roleContent"></div>
         </div>
-        <div class="hidden-content" id="roleHiddenContent"></div>
     </div>
     <div id="roleNextContainer" style="text-align: center; margin-top: 20px;"></div>
 </div>
 
-<!-- شاشة اللعب مع شات -->
-<div id="gameplayScreen" class="screen">
-    <div class="timer" id="gameTimer">05:00</div>
+<!-- شاشة اللعب (مشتركة مع شات) -->
+<div id="gameplay" class="screen">
+    <div class="timer-text" id="timer">05:00</div>
     <div class="players-list">
         <h3>👥 اللاعبون المتبقون</h3>
-        <div id="gamePlayersList"></div>
+        <div id="playersNamesList"></div>
     </div>
     <div class="chat-container">
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="اكتب رسالتك...">
-            <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="sendChatMessage()" style="background: var(--primary); border: none; padding: 8px 15px; border-radius: 20px;"><i class="fas fa-paper-plane"></i></button>
         </div>
     </div>
-    <button class="main-btn" id="voteBtn" onclick="startVotingPhase()">🗳️ التصويت على الجاسوس</button>
+    <button class="main-btn" id="voteBtn" style="background: #d32f2f;" onclick="triggerVoting()">اتهام الجاسوس</button>
 </div>
 
-<div id="voteScreen" class="screen">
-    <h2 style="text-align: center;">🗳️ التصويت</h2>
-    <div class="card" id="voteContainer"></div>
+<div id="votePage" class="screen">
+    <h2 style="text-align: center; color: var(--primary);">🗳️ التصويت</h2>
+    <div id="voteTurnContainer" class="card"></div>
 </div>
 
-<div id="resultScreen" class="screen">
-    <h2 id="resultTitle" style="text-align: center;"></h2>
-    <div class="card" id="resultMessage"></div>
-    <button class="main-btn" onclick="resetGame()">🏠 الرئيسية</button>
+<div id="voteResultsPage" class="screen">
+    <h2 style="text-align: center; color: var(--primary);">📊 نتيجة التصويت</h2>
+    <div id="resultsSection" class="card"></div>
+    <button class="main-btn" id="continueBtn" onclick="processVoteResult()">متابعة</button>
 </div>
 
 <script>
@@ -209,362 +342,252 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // بيانات الأماكن
+    const MAP_DATA = {
+        'public': ["مطار", "بنك", "مطعم", "سينما", "مستشفى", "حديقة عامة", "مدرسة", "متحف", "مركز تسوق", "صالة ألعاب"],
+        'sci-fi': ["محطة فضاء", "مفاعل نووي", "قاعدة مريخية", "سفينة فضائية", "مختبر سري"],
+        'travel': ["برج إيفل", "الأهرامات", "سور الصين العظيم", "الكولوسيوم", "تاج محل"],
+        'home': ["المطبخ", "غرفة المعيشة", "القبو", "الحمام", "غرفة النوم"],
+        'cities': ["القاهرة", "باريس", "نيويورك", "طوكيو", "لندن"],
+        'entertainment': ["ستوديو أفلام", "مدينة ألعاب", "سيرك", "دار أوبرا", "ملعب كرة قدم"]
+    };
+
     // متغيرات عامة
     let gameMode = null; // 'offline' or 'online'
-    let players = [];
-    let activePlayers = [];
-    let spyIndex = -1;
-    let currentLocation = "";
-    let currentPlayerIndex = 0;
-    let hasSeenRole = false;
-    let timerInterval = null;
-    let gameActive = true;
-    let votes = {};
-    let voteOrder = [];
-    let currentVoterIndex = 0;
+    let players = [], activePlayers = [], spyIndex = -1, currentLocation = "", selectedMapKey = 'public', selectedTime = 300;
+    let currentPlayerIndex = 0, hasSeenRole = false, timerInterval = null, gameActive = true;
+    let votes = {}, voteOrder = [], currentVoterIndex = 0, waitingForVote = false;
     
     // متغيرات أونلاين
-    let currentRoomId = null;
-    let currentPlayerName = null;
-    let isHost = false;
-    let onlinePlayers = [];
-    let onlineSpyIndex = -1;
-    let onlineLocation = "";
-    let myRoleRevealed = false;
-    let gameStarted = false;
-    let chatListener = null;
+    let currentRoomId = null, currentPlayerName = null, isHost = false;
+    let onlinePlayers = [], onlineSpyIndex = -1, onlineLocation = "", gameStarted = false, myRoleReady = false;
+    let chatListener = null, voteListener = null;
 
-    const LOCATIONS = ["مطار", "بنك", "مطعم", "سينما", "مستشفى", "مدرسة", "متحف", "مركز تسوق", "ملعب", "مقهى", "مكتبة", "نادي رياضي", "حديقة", "مسرح", "شاطئ", "محطة قطار", "مصنع", "قلعة", "غابة", "جزيرة"];
-
+    // دوال عامة
     function toggleMenu() { document.getElementById('sideMenu').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
     function navTo(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     function showNotification(msg) { let n = document.createElement('div'); n.className = 'notification'; n.innerHTML = msg; document.body.appendChild(n); setTimeout(() => n.remove(), 3000); }
-    
     function switchTheme(theme) { document.body.className = 'theme-' + theme; toggleMenu(); }
-    
-    function showHowTo() { navTo('howtoScreen'); }
-    
-    function selectMode(mode) {
-        gameMode = mode;
-        if (mode === 'offline') {
-            players = [];
-            buildOfflinePlayerList();
-            navTo('offlineSetupScreen');
-        } else {
-            navTo('onlineLobbyScreen');
-        }
-    }
-    
-    // ========== أوفلاين ==========
-    function buildOfflinePlayerList() {
-        let container = document.getElementById('offlinePlayersList');
+    function resetToHome() { if(timerInterval) clearInterval(timerInterval); if(currentRoomId) leaveOnlineRoom(); navTo('homeScreen'); gameMode = null; }
+
+    // شرح اللعبة بنفس التصميم الأصلي
+    const howtoData = [
+        { icon: "fas fa-theater-masks", title: "🎭 الأدوار", desc: "يتم توزيع الأدوار عشوائياً: أحدكم هو الجاسوس، والباقي عملاء يعرفون الموقع السري." },
+        { icon: "fas fa-fingerprint", title: "🕵️ مرحلة الأدوار", desc: "اضغط على البصمة لرؤية دورك. سيظهر للموظفين الموقع، وللجاسوس رسالة أنه لا يعرف المكان." },
+        { icon: "fas fa-comments", title: "💬 النقاش", desc: "لديكم وقت محدد للتحدث في الشات ومحاولة اكتشاف الجاسوس." },
+        { icon: "fas fa-vote-yea", title: "⚖️ التصويت", desc: "كل لاعب يدلي بصوته على من يشتبه به. اللاعب الأكثر أصواتاً يتم اتهامه." },
+        { icon: "fas fa-trophy", title: "🏆 الفوز", desc: "يفوز العملاء إذا تم اكتشاف الجاسوس. يفوز الجاسوس إذا بقي معه لاعب واحد فقط." }
+    ];
+    function openHowtoVideo() {
+        navTo('howto');
+        const container = document.getElementById('videoContainer');
         container.innerHTML = '';
-        for (let i = 0; i < 3; i++) {
-            let div = document.createElement('div');
-            div.className = 'player-item';
-            div.innerHTML = `<input type="text" placeholder="لاعب ${i+1}" class="offlinePlayerName" style="flex:1; margin-left:10px;"><i class="fas fa-times" style="cursor:pointer" onclick="this.parentElement.remove()"></i>`;
-            container.appendChild(div);
-        }
+        const welcomeDiv = document.createElement('div'); welcomeDiv.className = 'welcome-screen'; welcomeDiv.innerHTML = `<div class="welcome-icon"><i class="fas fa-user-secret"></i></div><div class="welcome-title">أهلاً بك في SPY</div><div class="welcome-sub">إليك شرح طريقة اللعب...</div>`;
+        container.appendChild(welcomeDiv);
+        const gridDiv = document.createElement('div'); gridDiv.className = 'info-grid';
+        howtoData.forEach(data => { const card = document.createElement('div'); card.className = 'info-card-item'; card.innerHTML = `<div class="card-icon"><i class="${data.icon}"></i></div><div class="card-content"><h3>${data.title}</h3><p>${data.desc}</p></div>`; gridDiv.appendChild(card); });
+        container.appendChild(gridDiv);
+        const closeBtn = document.createElement('button'); closeBtn.className = 'main-btn'; closeBtn.innerText = 'رجوع للرئيسية'; closeBtn.onclick = () => navTo('homeScreen'); container.appendChild(closeBtn);
     }
-    function addOfflinePlayer() {
-        let container = document.getElementById('offlinePlayersList');
-        let div = document.createElement('div');
-        div.className = 'player-item';
-        div.innerHTML = `<input type="text" placeholder="لاعب جديد" class="offlinePlayerName" style="flex:1; margin-left:10px;"><i class="fas fa-times" style="cursor:pointer" onclick="this.parentElement.remove()"></i>`;
-        container.appendChild(div);
+
+    // ======================= أوفلاين =======================
+    function startOfflineMode() { gameMode = 'offline'; buildMapList(); setupTimeSelector(); buildPlayerList(); navTo('mapSelection'); }
+    function buildMapList() {
+        const container = document.getElementById('mapList'); container.innerHTML = '';
+        const categories = [
+            { key: 'public', name: 'أماكن عامة', icon: 'fa-city' }, { key: 'sci-fi', name: 'خيال علمي', icon: 'fa-atom' },
+            { key: 'travel', name: 'معالم سياحية', icon: 'fa-landmark' }, { key: 'home', name: 'المنزل', icon: 'fa-home' },
+            { key: 'cities', name: 'مدن عالمية', icon: 'fa-globe' }, { key: 'entertainment', name: 'ترفيه', icon: 'fa-gamepad' }
+        ];
+        categories.forEach(cat => { const div = document.createElement('div'); div.className = 'map-category' + (cat.key === selectedMapKey ? ' selected' : ''); div.setAttribute('data-map', cat.key); div.innerHTML = `<i class="fas ${cat.icon}"></i><span class="category-name">${cat.name}</span>`; div.onclick = () => { document.querySelectorAll('.map-category').forEach(c => c.classList.remove('selected')); div.classList.add('selected'); selectedMapKey = cat.key; }; container.appendChild(div); });
     }
+    function setupTimeSelector() { const btns = document.querySelectorAll('.time-btn'); btns.forEach(btn => btn.onclick = () => { btns.forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedTime = parseInt(btn.getAttribute('data-time')); }); }
+    function buildPlayerList() { const container = document.getElementById('list'); container.innerHTML = ''; for (let i = 0; i < 3; i++) { const row = document.createElement('div'); row.className = 'player-row'; row.innerHTML = `<i class="fas fa-times remove-icon" onclick="this.parentElement.remove()"></i><input type="text" placeholder="أضف اسمك هنا" class="p-name">`; container.appendChild(row); } }
+    function addPlayer() { const container = document.getElementById('list'); const row = document.createElement('div'); row.className = 'player-row'; row.innerHTML = `<i class="fas fa-times remove-icon" onclick="this.parentElement.remove()"></i><input type="text" placeholder="أضف اسمك هنا" class="p-name">`; container.appendChild(row); }
     function startOfflineGame() {
-        let inputs = document.querySelectorAll('#offlinePlayersList .offlinePlayerName');
-        players = Array.from(inputs).map(inp => inp.value.trim()).filter(n => n !== "");
-        if (players.length < 3) { showNotification("يجب أن يكون 3 لاعبين على الأقل"); return; }
+        players = Array.from(document.querySelectorAll('.p-name')).map(i => i.value.trim()).filter(p => p !== "");
+        if(players.length < 3) { showNotification("يجب أن يكون 3 لاعبين على الأقل"); return; }
         activePlayers = [...players];
-        currentLocation = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
+        const locationList = MAP_DATA[selectedMapKey];
+        currentLocation = locationList[Math.floor(Math.random() * locationList.length)];
         spyIndex = Math.floor(Math.random() * players.length);
-        currentPlayerIndex = 0;
-        hasSeenRole = false;
+        currentPlayerIndex = 0; hasSeenRole = false;
         showOfflineRoleScreen();
     }
     function showOfflineRoleScreen() {
-        navTo('roleDistributionScreen');
-        document.getElementById('rolePlayerName').innerText = players[currentPlayerIndex];
-        document.getElementById('roleHiddenContent').innerHTML = currentPlayerIndex === spyIndex ? 
-            `<i class="fas fa-user-secret" style="font-size:3rem; color:#ff6b6b"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان</p>` :
-            `<i class="fas fa-map-marker-alt" style="font-size:3rem; color:var(--primary)"></i><h3>الموقع السري:</h3><div style="font-size:1.8rem;">📍 ${currentLocation}</div>`;
+        navTo('rolesScreen');
+        document.getElementById('turnText').innerText = players[currentPlayerIndex];
+        const roleContent = document.getElementById('roleContent');
+        roleContent.innerHTML = (currentPlayerIndex === spyIndex) ? `<i class="fas fa-user-secret fa-4x" style="color:red"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان</p>` : `<i class="fas fa-map-marker-alt fa-3x" style="color:var(--primary)"></i><p>الموقع السري:</p><h1>${currentLocation}</h1>`;
         document.getElementById('roleCard').classList.remove('show');
         document.getElementById('roleNextContainer').innerHTML = '';
         hasSeenRole = false;
     }
-    function revealMyRole() {
+    function revealRole() {
         document.getElementById('roleCard').classList.add('show');
-        if (!hasSeenRole) {
-            hasSeenRole = true;
-            document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="nextOfflinePlayer()">التالي</button>';
-        }
+        if(!hasSeenRole) { hasSeenRole = true; document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="nextOfflinePlayer()">التالي</button>'; }
     }
-    function nextOfflinePlayer() {
-        currentPlayerIndex++;
-        if (currentPlayerIndex < players.length) showOfflineRoleScreen();
-        else startGameplayOffline();
-    }
-    function startGameplayOffline() {
-        navTo('gameplayScreen');
-        updateGamePlayersList(players);
-        startTimer(300);
-        setupChat('offline');
-    }
+    function nextOfflinePlayer() { currentPlayerIndex++; if(currentPlayerIndex < players.length) showOfflineRoleScreen(); else startOfflineGameplay(); }
+    function startOfflineGameplay() { navTo('gameplay'); updatePlayersListDisplay(players); startTimer(selectedTime); setupChat('offline'); }
     
-    // ========== أونلاين ==========
-    function showCreateRoomUI() { navTo('createRoomScreen'); }
-    function showJoinRoomUI() { navTo('joinRoomScreen'); }
-    
+    // ======================= أونلاين =======================
+    function showOnlineMenu() { gameMode = 'online'; navTo('onlineMenuScreen'); }
+    function showCreateRoom() { navTo('createRoomScreen'); }
+    function showJoinRoom() { navTo('joinRoomScreen'); }
     function createOnlineRoom() {
-        let name = document.getElementById('onlinePlayerName').value.trim();
-        if (!name) { showNotification("أدخل اسمك"); return; }
-        currentPlayerName = name;
+        let name = document.getElementById('onlineHostName').value.trim();
+        if(!name) { showNotification("أدخل اسمك"); return; }
+        currentPlayerName = name; isHost = true;
         currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        isHost = true;
         db.ref('rooms/' + currentRoomId).set({ players: [name], host: name, status: "waiting", createdAt: Date.now() });
         listenToOnlineRoom();
         document.getElementById('waitingRoomCode').innerText = currentRoomId;
-        navTo('waitingRoomScreen');
+        navTo('onlineWaitingScreen');
     }
-    
     function joinOnlineRoom() {
-        let code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
+        let code = document.getElementById('joinRoomCode').value.trim().toUpperCase();
         let name = document.getElementById('joinPlayerName').value.trim();
-        if (!code || !name) { showNotification("أدخل الكود والاسم"); return; }
+        if(!code || !name) { showNotification("أدخل الكود والاسم"); return; }
         db.ref('rooms/' + code).once('value', snap => {
-            if (!snap.exists()) { showNotification("الغرفة غير موجودة"); return; }
+            if(!snap.exists()) { showNotification("الغرفة غير موجودة"); return; }
             let room = snap.val();
-            if (room.status !== "waiting") { showNotification("اللعبة بدأت"); return; }
-            if (room.players.includes(name)) { showNotification("الاسم موجود"); return; }
+            if(room.status !== "waiting") { showNotification("اللعبة بدأت بالفعل"); return; }
+            if(room.players.includes(name)) { showNotification("الاسم موجود"); return; }
             room.players.push(name);
             db.ref('rooms/' + code).update({ players: room.players }).then(() => {
-                currentRoomId = code;
-                currentPlayerName = name;
-                isHost = false;
+                currentRoomId = code; currentPlayerName = name; isHost = false;
                 listenToOnlineRoom();
                 document.getElementById('waitingRoomCode').innerText = code;
-                navTo('waitingRoomScreen');
+                navTo('onlineWaitingScreen');
             });
         });
     }
-    
     function listenToOnlineRoom() {
         db.ref('rooms/' + currentRoomId).on('value', snap => {
             let room = snap.val();
-            if (!room) return;
+            if(!room) return;
             onlinePlayers = room.players || [];
-            updateWaitingUI(room);
-            if (room.status === "playing" && !gameStarted) {
-                gameStarted = true;
-                onlineLocation = room.location;
-                onlineSpyIndex = room.spyIndex;
-                activePlayers = [...onlinePlayers];
-                showOnlineRoleScreen();
-            }
+            let container = document.getElementById('waitingPlayersList');
+            if(container) { container.innerHTML = "<h3>اللاعبون:</h3>" + onlinePlayers.map(p => `<div class="player-item"><span>${p}</span>${p === room.host ? ' 👑' : ''}</div>`).join(''); }
+            let startBtn = document.getElementById('startOnlineGameBtn');
+            if(startBtn && isHost && onlinePlayers.length >= 3) startBtn.style.display = 'block';
+            if(room.status === "playing" && !gameStarted) { gameStarted = true; onlineLocation = room.location; onlineSpyIndex = room.spyIndex; activePlayers = [...onlinePlayers]; showOnlineRoleScreen(); }
+            if(room.voteTrigger && !waitingForVote) { waitingForVote = true; startOnlineVoting(); }
+            if(room.voteResults) { showOnlineVoteResults(room.voteResults); }
         });
     }
-    
-    function updateWaitingUI(room) {
-        let container = document.getElementById('waitingPlayersList');
-        container.innerHTML = "<h3>اللاعبون:</h3>";
-        onlinePlayers.forEach(p => { container.innerHTML += `<div class="player-item"><span>${p}</span>${p === room.host ? ' 👑' : ''}</div>`; });
-        let startBtn = document.getElementById('startOnlineGameBtn');
-        if (isHost && onlinePlayers.length >= 3) startBtn.style.display = 'block';
-        else startBtn.style.display = 'none';
-    }
-    
-    function startOnlineGame() {
-        if (!isHost) return;
-        let randomLocation = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
+    function hostStartGame() {
+        if(!isHost) return;
+        let randomLocation = MAP_DATA[selectedMapKey || 'public'][Math.floor(Math.random() * MAP_DATA[selectedMapKey || 'public'].length)];
         let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
-        db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy, activePlayers: onlinePlayers, eliminated: [] });
+        db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy });
     }
-    
     function showOnlineRoleScreen() {
-        navTo('roleDistributionScreen');
-        myRoleRevealed = false;
+        navTo('rolesScreen');
         let myIndex = onlinePlayers.indexOf(currentPlayerName);
         let isSpy = (myIndex === onlineSpyIndex);
-        document.getElementById('rolePlayerName').innerText = currentPlayerName;
-        document.getElementById('roleHiddenContent').innerHTML = isSpy ? 
-            `<i class="fas fa-user-secret" style="font-size:3rem; color:#ff6b6b"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان، حاول اكتشافه!</p>` :
-            `<i class="fas fa-map-marker-alt" style="font-size:3rem; color:var(--primary)"></i><h3>الموقع السري:</h3><div style="font-size:1.8rem;">📍 ${onlineLocation}</div>`;
+        document.getElementById('turnText').innerText = currentPlayerName;
+        document.getElementById('roleContent').innerHTML = isSpy ? `<i class="fas fa-user-secret fa-4x" style="color:red"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان</p>` : `<i class="fas fa-map-marker-alt fa-3x" style="color:var(--primary)"></i><p>الموقع السري:</p><h1>${onlineLocation}</h1>`;
         document.getElementById('roleCard').classList.remove('show');
         document.getElementById('roleNextContainer').innerHTML = '';
+        myRoleReady = false;
     }
-    
-    function revealMyRole() {
+    function revealRole() {
         document.getElementById('roleCard').classList.add('show');
-        if (!myRoleRevealed) {
-            myRoleRevealed = true;
-            document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="onlineRoleReady()">✅ جاهز</button>';
-        }
+        if(!myRoleReady) { myRoleReady = true; document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="onlineRoleReady()">✅ جاهز</button>'; }
     }
-    
     function onlineRoleReady() {
-        db.ref('rooms/' + currentRoomId + '/ready').transaction(val => (val || 0) + 1);
-        db.ref('rooms/' + currentRoomId + '/ready').once('value', snap => {
-            let readyCount = snap.val() || 0;
-            if (readyCount >= onlinePlayers.length) {
-                startCountdownAndGame();
-            }
-        });
+        db.ref('rooms/' + currentRoomId + '/readyCount').transaction(val => (val || 0) + 1);
+        db.ref('rooms/' + currentRoomId + '/readyCount').once('value', snap => { if(snap.val() >= onlinePlayers.length) startCountdown(); });
     }
-    
-    function startCountdownAndGame() {
+    function startCountdown() {
         let count = 5;
-        let countdownDiv = document.createElement('div');
-        countdownDiv.className = 'countdown';
-        countdownDiv.innerText = count;
-        document.body.appendChild(countdownDiv);
-        let interval = setInterval(() => {
-            count--;
-            if (count <= 0) {
-                clearInterval(interval);
-                countdownDiv.remove();
-                startOnlineGameplay();
-            } else {
-                countdownDiv.innerText = count;
-            }
-        }, 1000);
+        let div = document.createElement('div'); div.className = 'countdown-overlay'; div.innerText = count; document.body.appendChild(div);
+        let interval = setInterval(() => { count--; if(count <= 0) { clearInterval(interval); div.remove(); startOnlineGameplay(); } else div.innerText = count; }, 1000);
     }
+    function startOnlineGameplay() { navTo('gameplay'); updatePlayersListDisplay(onlinePlayers); startTimer(300); setupChat('online'); }
     
-    function startOnlineGameplay() {
-        navTo('gameplayScreen');
-        updateGamePlayersList(onlinePlayers);
-        startTimer(300);
-        setupChat('online');
-    }
-    
-    // ========== دوال مشتركة ==========
-    function updateGamePlayersList(list) {
-        let container = document.getElementById('gamePlayersList');
-        container.innerHTML = list.map(p => `<div class="player-item">🎭 ${p}</div>`).join('');
-    }
-    
+    // ======================= دوال مشتركة =======================
+    function updatePlayersListDisplay(list) { document.getElementById('playersNamesList').innerHTML = list.map(p => `<div style="padding:8px; background:var(--card-bg); margin:5px 0; border-radius:12px;">🎭 ${p}</div>`).join(''); }
     function startTimer(seconds) {
-        if (timerInterval) clearInterval(timerInterval);
+        if(timerInterval) clearInterval(timerInterval);
         let remaining = seconds;
-        let timerEl = document.getElementById('gameTimer');
-        function update() {
-            let m = Math.floor(remaining / 60);
-            let s = remaining % 60;
-            timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-        }
+        const timerEl = document.getElementById('timer');
+        function update() { let m = Math.floor(remaining/60), s = remaining%60; timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
         update();
-        timerInterval = setInterval(() => {
-            if (remaining <= 0) { clearInterval(timerInterval); startVotingPhase(); }
-            else { remaining--; update(); }
-        }, 1000);
+        timerInterval = setInterval(() => { if(remaining <= 0) { clearInterval(timerInterval); triggerVoting(); } else { remaining--; update(); } }, 1000);
     }
-    
     function setupChat(mode) {
         let container = document.getElementById('chatMessages');
         container.innerHTML = '<div>💬 دخلت غرفة النقاش</div>';
-        if (mode === 'online' && currentRoomId) {
-            if (chatListener) db.ref('rooms/' + currentRoomId + '/chats').off();
-            chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => {
-                let msg = snap.val();
-                if (msg) {
-                    let div = document.createElement('div');
-                    div.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`;
-                    container.appendChild(div);
-                    container.scrollTop = container.scrollHeight;
-                }
-            });
+        if(mode === 'online' && currentRoomId) {
+            if(chatListener) db.ref('rooms/' + currentRoomId + '/chats').off();
+            chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => { let msg = snap.val(); if(msg) { let div = document.createElement('div'); div.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`; container.appendChild(div); container.scrollTop = container.scrollHeight; } });
         }
     }
-    
     function sendChatMessage() {
         let input = document.getElementById('chatInput');
         let text = input.value.trim();
-        if (!text) return;
-        if (gameMode === 'offline') {
+        if(!text) return;
+        if(gameMode === 'offline') {
             let container = document.getElementById('chatMessages');
-            let div = document.createElement('div');
-            div.innerHTML = `<strong>${players[currentPlayerIndex] || 'لاعب'}:</strong> ${text}`;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        } else if (currentRoomId) {
-            db.ref('rooms/' + currentRoomId + '/chats').push({ name: currentPlayerName, text: text, time: Date.now() });
-        }
+            let div = document.createElement('div'); div.innerHTML = `<strong>${players[currentPlayerIndex] || 'لاعب'}:</strong> ${text}`; container.appendChild(div); container.scrollTop = container.scrollHeight;
+        } else if(currentRoomId) { db.ref('rooms/' + currentRoomId + '/chats').push({ name: currentPlayerName, text: text }); }
         input.value = '';
     }
-    
+    function triggerVoting() {
+        if(timerInterval) clearInterval(timerInterval);
+        if(gameMode === 'online') { db.ref('rooms/' + currentRoomId).update({ voteTrigger: true }); waitingForVote = true; startOnlineVoting(); }
+        else { startVotingPhase(); }
+    }
     function startVotingPhase() {
-        if (timerInterval) clearInterval(timerInterval);
-        votes = {};
-        voteOrder = [...activePlayers];
-        currentVoterIndex = 0;
+        votes = {}; voteOrder = [...activePlayers]; currentVoterIndex = 0;
         showNextVoter();
     }
-    
+    function startOnlineVoting() {
+        votes = {}; voteOrder = [...activePlayers]; currentVoterIndex = 0;
+        showNextVoter();
+    }
     function showNextVoter() {
-        if (currentVoterIndex >= voteOrder.length) { calculateVoteResult(); return; }
+        if(currentVoterIndex >= voteOrder.length) { calculateVoteResult(); return; }
         let voter = voteOrder[currentVoterIndex];
         let others = activePlayers.filter(p => p !== voter);
-        let container = document.getElementById('voteContainer');
+        let container = document.getElementById('voteTurnContainer');
         container.innerHTML = `<h3>🗳️ دور ${voter}</h3>`;
-        others.forEach(p => {
-            let btn = document.createElement('div');
-            btn.className = 'vote-option';
-            btn.innerText = p;
-            btn.onclick = () => { votes[voter] = p; currentVoterIndex++; showNextVoter(); };
-            container.appendChild(btn);
-        });
-        navTo('voteScreen');
+        others.forEach(p => { let btn = document.createElement('div'); btn.className = 'vote-option-btn'; btn.innerText = p; btn.onclick = () => { votes[voter] = p; currentVoterIndex++; showNextVoter(); }; container.appendChild(btn); });
+        navTo('votePage');
     }
-    
     function calculateVoteResult() {
         let voteCount = {};
         Object.values(votes).forEach(v => voteCount[v] = (voteCount[v] || 0) + 1);
         let maxVotes = 0, accused = null;
-        for (let [player, count] of Object.entries(voteCount)) if (count > maxVotes) { maxVotes = count; accused = player; }
+        for(let [player, count] of Object.entries(voteCount)) if(count > maxVotes) { maxVotes = count; accused = player; }
         let accusedIndex = activePlayers.indexOf(accused);
-        let currentSpyIndex = (gameMode === 'offline') ? spyIndex : onlineSpyIndex;
-        let isSpy = (accusedIndex === currentSpyIndex);
+        let currentSpy = (gameMode === 'offline') ? spyIndex : onlineSpyIndex;
+        let isSpy = (accusedIndex === currentSpy);
         let resultMsg = isSpy ? `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!` : `❌ تم اتهام ${accused} (بريء)! الجاسوس ينجو!`;
-        document.getElementById('resultTitle').innerText = isSpy ? "🎉 فوز العملاء!" : "💀 الجاسوس ينجو!";
-        document.getElementById('resultMessage').innerHTML = `<div class="card">${resultMsg}</div>`;
-        navTo('resultScreen');
-        if (gameMode === 'online' && currentRoomId) db.ref('rooms/' + currentRoomId).update({ gameOver: true });
+        document.getElementById('resultsSection').innerHTML = `<h3>النتيجة:</h3><p>${resultMsg}</p><p>اللاعب المتهم: ${accused}</p>`;
+        if(gameMode === 'online') db.ref('rooms/' + currentRoomId).update({ voteResults: { accused: accused, isSpy: isSpy, resultMsg: resultMsg } });
+        navTo('voteResultsPage');
     }
+    function processVoteResult() { navTo('homeScreen'); if(timerInterval) clearInterval(timerInterval); if(gameMode === 'online') leaveOnlineRoom(); }
+    function leaveOnlineRoom() { if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); currentRoomId = null; navTo('homeScreen'); }
     
-    function leaveOnlineRoom() {
-        if (currentRoomId) db.ref('rooms/' + currentRoomId).remove();
-        currentRoomId = null;
-        navTo('homeScreen');
-    }
-    
-    function resetGame() {
-        if (timerInterval) clearInterval(timerInterval);
-        gameActive = true;
-        if (currentRoomId) leaveOnlineRoom();
-        navTo('homeScreen');
-    }
-    
-    // Intro animation
-    setTimeout(() => {
-        let intro = document.getElementById('introAnimation');
-        if(intro) intro.remove();
-    }, 3000);
+    window.revealRole = revealRole;
+    window.nextOfflinePlayer = nextOfflinePlayer;
+    window.onlineRoleReady = onlineRoleReady;
+    window.triggerVoting = triggerVoting;
+    window.processVoteResult = processVoteResult;
 </script>
 
-<div id="introAnimation" class="intro-animation">
+<div class="intro-animation">
     <div style="font-size: 5rem;"><i class="fas fa-user-secret" style="color: #ffd93d;"></i></div>
     <div style="display: flex; flex-direction: row-reverse; margin-top: 20px;">
-        <span style="font-family: 'Orbitron'; font-size: 3rem; animation: fadeInUp 0.5s forwards; animation-delay: 0.5s; opacity:0;">S</span>
-        <span style="font-family: 'Orbitron'; font-size: 3rem; animation: fadeInUp 0.5s forwards; animation-delay: 1s; opacity:0;">P</span>
-        <span style="font-family: 'Orbitron'; font-size: 3rem; animation: fadeInUp 0.5s forwards; animation-delay: 1.5s; opacity:0;">Y</span>
+        <span style="font-family: 'Orbitron'; font-size: 3rem; animation: letterReveal 0.4s forwards; animation-delay: 0.5s; opacity:0;">S</span>
+        <span style="font-family: 'Orbitron'; font-size: 3rem; animation: letterReveal 0.4s forwards; animation-delay: 1s; opacity:0;">P</span>
+        <span style="font-family: 'Orbitron'; font-size: 3rem; animation: letterReveal 0.4s forwards; animation-delay: 1.5s; opacity:0;">Y</span>
     </div>
-    <div style="margin-top: 20px; animation: fadeIn 1s forwards; animation-delay: 2s; opacity:0;">MOHAMED ZIDAN</div>
 </div>
-<style>
-    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } from { opacity: 0; transform: translateY(30px); } }
-    @keyframes fadeIn { to { opacity: 1; } }
-</style>
 
 </body>
 </html>
