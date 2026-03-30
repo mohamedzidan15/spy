@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
+        /* ==================== الكود الأساسي الأصلي (نفسه بالضبط) ==================== */
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cairo:wght@400;700&family=Amiri:wght@400;700&family=Press+Start+2P&family=Creepster&family=Monoton&family=Rajdhani:wght@400;700&display=swap');
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
@@ -51,7 +52,6 @@
         .main-btn:active { transform: scale(0.97); }
         .secondary-btn { background: transparent; }
         
-        /* شرح اللعبة بالفيديو الاحترافي */
         .video-container {
             position: relative;
             min-height: 70vh;
@@ -162,7 +162,6 @@
         }
         @keyframes fadeInBtn { to { opacity: 1; } }
         
-        /* تصميم الأماكن العمودي */
         .map-list {
             display: flex;
             flex-direction: column;
@@ -204,7 +203,6 @@
             font-size: 0.8rem;
         }
         
-        /* بطاقة عرض الدور الأصلي */
         .card-container {
             display: flex;
             justify-content: center;
@@ -255,7 +253,6 @@
             align-items: center;
         }
         
-        /* باقي العناصر */
         .timer-text { font-size: 4rem; text-align: center; margin: 40px 0; font-family: monospace; font-weight: bold; }
         .time-selector { display: flex; gap: 10px; margin: 15px 0; }
         .time-btn { flex: 1; padding: 10px; border-radius: 20px; text-align: center; cursor: pointer; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); }
@@ -282,12 +279,6 @@
         .vote-count { color: var(--primary); font-weight: bold; }
         .players-list { background: var(--card-bg, rgba(0,0,0,0.6)); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
         .players-list h3 { color: var(--primary); margin-bottom: 10px; }
-        .dialog-overlay {
-            position: fixed; inset: 0; z-index: 3000;
-            display: none; align-items: center; justify-content: center; padding: 20px;
-            background: rgba(0,0,0,0.95);
-        }
-        .dialog-box { background: var(--card-bg, #1a1a24); padding: 28px; border-radius: 32px; width: 100%; max-width: 380px; text-align: center; border: 1px solid var(--primary); }
         .side-menu {
             position: fixed; top: 0; right: -300px; width: 280px; z-index: 2000; transition: 0.4s;
             padding: 80px 20px 30px; overflow-y: auto;
@@ -300,7 +291,6 @@
         .home-content { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; }
         .info-card { background: var(--card-bg, #1a1a24); border-radius: 24px; padding: 20px; }
 
-        /* رسالة الإقصاء الداخلية - بدون نافذة منبثقة */
         .elimination-message {
             position: fixed;
             bottom: 30px;
@@ -321,7 +311,29 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* شات */
+        /* ثيمات أونلاين فقط */
+        .room-code {
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 5px;
+            background: var(--primary);
+            color: #000;
+            padding: 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copy-btn {
+            background: rgba(0,0,0,0.2);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
         .chat-container {
             background: rgba(0,0,0,0.5);
             border-radius: 20px;
@@ -349,7 +361,6 @@
             color: white;
             padding: 8px 15px;
             border-radius: 25px;
-            margin: 0;
         }
         .chat-input-area button {
             background: var(--primary);
@@ -359,7 +370,6 @@
             cursor: pointer;
             font-weight: bold;
         }
-
         .countdown-overlay {
             position: fixed;
             top: 50%;
@@ -372,21 +382,13 @@
             border-radius: 60px;
             z-index: 3000;
             font-weight: bold;
-            font-family: monospace;
         }
-
-        .room-code {
-            font-size: 2rem;
+        .ready-status {
             text-align: center;
-            letter-spacing: 5px;
-            background: var(--primary);
-            color: #000;
-            padding: 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin: 15px 0;
+            margin-top: 15px;
+            color: var(--primary);
         }
-
+        
         .quick-intro {
             position: fixed;
             inset: 0;
@@ -420,7 +422,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* الثيمات */
         body.theme-cinema { --primary: #ffd93d; --card-bg: rgba(0,0,0,0.6); background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%); color: #ffd93d; }
         body.theme-newspaper { --primary: #d4af7a; --card-bg: rgba(0,0,0,0.6); background: #1a140e; color: #d4af7a; }
         body.theme-warzone { --primary: #8b7355; --card-bg: rgba(0,0,0,0.7); background: #0f0c08; color: #8b7355; }
@@ -447,9 +448,7 @@
         body.theme-cartoon .logo { font-family: 'Comic Neue', cursive; }
         body.theme-cartoon .main-btn { background: #aa5555; border-radius: 30px; border: 2px solid #ff9999; box-shadow: 4px 4px 0 #ff9999; }
         
-        /* للشاشات الصغيرة */
-        .player-item { padding: 8px; background: rgba(0,0,0,0.3); margin: 5px 0; border-radius: 12px; }
-        .waiting-players-list { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 15px; margin: 15px 0; }
+        .player-item { padding: 8px; background: rgba(0,0,0,0.3); margin: 5px 0; border-radius: 12px; display: flex; justify-content: space-between; }
     </style>
 </head>
 <body class="theme-cinema">
@@ -481,7 +480,7 @@
     </div>
 </div>
 
-<!-- الشاشات -->
+<!-- ==================== الشاشات الرئيسية ==================== -->
 <div id="homeScreen" class="screen active">
     <div class="home-content">
         <i class="fas fa-user-secret" style="font-size: 100px; color: #ffffff; margin-bottom: 30px;"></i>
@@ -499,7 +498,7 @@
     <div class="video-container" id="videoContainer"></div>
 </div>
 
-<!-- ==================== أوفلاين: نفس الكود الأصلي ==================== -->
+<!-- ==================== أوفلاين (نفس الكود الأصلي بالضبط) ==================== -->
 <div id="mapSelection" class="screen">
     <h2 style="text-align: center;">اختر مسرح الجريمة</h2>
     <div class="map-list" id="mapList"></div>
@@ -521,7 +520,7 @@
     <button class="main-btn" onclick="startOfflineGame()">توزيع الهويات</button>
 </div>
 
-<!-- ==================== أونلاين: شاشات الغرف ==================== -->
+<!-- ==================== أونلاين (شاشات جديدة) ==================== -->
 <div id="onlineMenuScreen" class="screen">
     <div class="card" style="text-align: center; background: var(--card-bg); border-radius: 24px; padding: 30px;">
         <button class="main-btn" onclick="showCreateRoomUI()">➕ إنشاء غرفة جديدة</button>
@@ -532,7 +531,7 @@
 
 <div id="createRoomScreen" class="screen">
     <div class="card">
-        <input type="text" id="onlineHostName" placeholder="اسمك" style="width:100%; padding:12px; border-radius:30px;">
+        <input type="text" id="onlineHostName" placeholder="اسمك" style="width:100%; padding:12px; border-radius:30px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:white;">
         <button class="main-btn" onclick="createOnlineRoom()">إنشاء غرفة</button>
         <button class="main-btn secondary-btn" onclick="backToOnlineMenu()">رجوع</button>
     </div>
@@ -540,8 +539,8 @@
 
 <div id="joinRoomScreen" class="screen">
     <div class="card">
-        <input type="text" id="joinRoomCodeInput" placeholder="كود الغرفة" maxlength="6" style="text-transform:uppercase">
-        <input type="text" id="joinPlayerNameInput" placeholder="اسمك">
+        <input type="text" id="joinRoomCodeInput" placeholder="كود الغرفة" maxlength="6" style="text-transform:uppercase; width:100%; padding:12px; border-radius:30px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:white;">
+        <input type="text" id="joinPlayerNameInput" placeholder="اسمك" style="width:100%; padding:12px; border-radius:30px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:white; margin-top:10px;">
         <button class="main-btn" onclick="joinOnlineRoom()">انضمام</button>
         <button class="main-btn secondary-btn" onclick="backToOnlineMenu()">رجوع</button>
     </div>
@@ -550,14 +549,17 @@
 <div id="onlineWaitingScreen" class="screen">
     <div class="card" style="text-align: center;">
         <div>كود الغرفة</div>
-        <div class="room-code" id="waitingRoomCodeDisplay">-----</div>
-        <div class="players-list waiting-players-list" id="waitingPlayersList"></div>
+        <div class="room-code" id="waitingRoomCodeDisplay">
+            <span id="roomCodeText">-----</span>
+            <button class="copy-btn" onclick="copyRoomCode()">📋 نسخ</button>
+        </div>
+        <div class="players-list" id="waitingPlayersList"></div>
         <button class="main-btn" id="startOnlineGameBtn" style="display:none" onclick="hostStartOnlineGame()">🎯 بدء اللعبة</button>
         <button class="main-btn secondary-btn" onclick="leaveOnlineRoom()">مغادرة</button>
     </div>
 </div>
 
-<!-- شاشة الأدوار (مشتركة بين أوفلاين وأونلاين) -->
+<!-- شاشة الأدوار (مشتركة) -->
 <div id="rolesScreen" class="screen">
     <h2 id="turnText" style="text-align: center; color: var(--primary);"></h2>
     <div class="card-container">
@@ -565,7 +567,6 @@
             <div class="front-content">
                 <i class="fas fa-fingerprint fingerprint-icon"></i>
                 <p>اضغط لرؤية مهمتك</p>
-                <p style="font-size: 0.8rem; margin-top: 8px;">(اضغط)</p>
             </div>
             <div class="role-content" id="roleContent"></div>
         </div>
@@ -573,14 +574,14 @@
     <div id="roleNextContainer" style="text-align: center; margin-top: 20px;"></div>
 </div>
 
-<!-- شاشة اللعب (مشتركة مع شات) -->
+<!-- شاشة اللعب (مشتركة مع شات في الأونلاين فقط) -->
 <div id="gameplay" class="screen">
     <div class="timer-text" id="timer">05:00</div>
     <div class="players-list">
         <h3>👥 اللاعبون المتبقون</h3>
         <div id="playersNamesList"></div>
     </div>
-    <div class="chat-container">
+    <div class="chat-container" id="chatContainer" style="display: none;">
         <div class="chat-messages" id="chatMessages"></div>
         <div class="chat-input-area">
             <input type="text" id="chatInput" placeholder="اكتب رسالتك...">
@@ -642,8 +643,7 @@
     // متغيرات أونلاين
     let currentRoomId = null, currentPlayerName = null, isHost = false;
     let onlinePlayers = [], onlineSpyIndex = -1, onlineLocation = "", gameStarted = false;
-    let playersWhoSawRole = []; // اللي شافوا مهمتهم
-    let chatListener = null, voteTriggerListener = null;
+    let chatListener = null;
     let isVotingActive = false;
 
     // ==================== دوال مساعدة ====================
@@ -653,8 +653,8 @@
     function switchTheme(theme) { document.body.className = 'theme-' + theme; toggleMenu(); const quickIntro = document.getElementById('quickIntro'); quickIntro.classList.add('show'); setTimeout(() => quickIntro.classList.remove('show'), 500); }
     function resetGameToHome() { if(timerInterval) clearInterval(timerInterval); if(currentRoomId) leaveOnlineRoom(); navTo('homeScreen'); gameMode = null; }
     function goHome() { resetGameToHome(); }
+    function copyRoomCode() { const code = document.getElementById('roomCodeText').innerText; navigator.clipboard.writeText(code); showNotification("✅ تم نسخ الكود: " + code); }
     
-    // شرح اللعبة
     function openHowtoVideo() {
         navTo('howto');
         const container = document.getElementById('videoContainer');
@@ -668,7 +668,7 @@
         const closeBtn = document.createElement('button'); closeBtn.className = 'main-btn close-howto-btn'; closeBtn.innerText = 'رجوع للرئيسية'; closeBtn.onclick = () => navTo('homeScreen'); container.appendChild(closeBtn);
     }
 
-    // ==================== أوفلاين (نفس الكود الأصلي) ====================
+    // ==================== أوفلاين (نفس الكود الأصلي بالضبط) ====================
     function startOfflineMode() { gameMode = 'offline'; buildMapList(); setupTimeSelector(); buildPlayerList(); navTo('mapSelection'); }
     function buildMapList() {
         const container = document.getElementById('mapList'); container.innerHTML = '';
@@ -708,16 +708,16 @@
         document.getElementById('roleCard').classList.remove('pressed');
         document.getElementById('roleNextContainer').innerHTML = '';
         hasSeenRole = false;
-        attachPressEvents(document.getElementById('roleCard'));
+        attachPressEvents(document.getElementById('roleCard'), true);
     }
-    function attachPressEvents(card) {
-        const startPress = (e) => { e.preventDefault(); if (!gameActive) return; card.classList.add('pressed'); if (!hasSeenRole) { hasSeenRole = true; document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="nextOfflinePlayer()">التالي</button>'; } };
+    function attachPressEvents(card, isOffline) {
+        const startPress = (e) => { e.preventDefault(); if (!gameActive) return; card.classList.add('pressed'); if (!hasSeenRole) { hasSeenRole = true; if(isOffline) document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="nextOfflinePlayer()">التالي</button>'; } };
         const endPress = (e) => { e.preventDefault(); card.classList.remove('pressed'); };
         card.addEventListener('mousedown', startPress); card.addEventListener('mouseup', endPress); card.addEventListener('mouseleave', endPress);
         card.addEventListener('touchstart', startPress, { passive: false }); card.addEventListener('touchend', endPress); card.addEventListener('touchcancel', endPress);
     }
     function nextOfflinePlayer() { currentPlayerIndex++; if (currentPlayerIndex < players.length) showOfflineRoleScreen(); else startOfflineGameplay(); }
-    function startOfflineGameplay() { updatePlayersListDisplay(players); navTo('gameplay'); startTimer(selectedTime); setupChat('offline'); }
+    function startOfflineGameplay() { updatePlayersListDisplay(players); navTo('gameplay'); document.getElementById('chatContainer').style.display = 'none'; startTimer(selectedTime); }
     
     // ==================== أونلاين ====================
     function showOnlineMenu() { gameMode = 'online'; navTo('onlineMenuScreen'); }
@@ -730,9 +730,9 @@
         if(!name) { showNotification("أدخل اسمك"); return; }
         currentPlayerName = name; isHost = true;
         currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        db.ref('rooms/' + currentRoomId).set({ players: [name], host: name, status: "waiting", createdAt: Date.now() });
+        db.ref('rooms/' + currentRoomId).set({ players: [name], host: name, status: "waiting", ready: [], createdAt: Date.now() });
         listenToOnlineRoom();
-        document.getElementById('waitingRoomCodeDisplay').innerText = currentRoomId;
+        document.getElementById('roomCodeText').innerText = currentRoomId;
         navTo('onlineWaitingScreen');
     }
     
@@ -749,7 +749,7 @@
             db.ref('rooms/' + code).update({ players: room.players }).then(() => {
                 currentRoomId = code; currentPlayerName = name; isHost = false;
                 listenToOnlineRoom();
-                document.getElementById('waitingRoomCodeDisplay').innerText = code;
+                document.getElementById('roomCodeText').innerText = code;
                 navTo('onlineWaitingScreen');
             });
         });
@@ -764,22 +764,17 @@
             if(container) { container.innerHTML = "<h3>اللاعبون:</h3>" + onlinePlayers.map(p => `<div class="player-item"><span>${p}</span>${p === room.host ? ' 👑' : ''}</div>`).join(''); }
             let startBtn = document.getElementById('startOnlineGameBtn');
             if(startBtn && isHost && onlinePlayers.length >= 3) startBtn.style.display = 'block';
+            
             if(room.status === "playing" && !gameStarted) {
                 gameStarted = true;
                 onlineLocation = room.location;
                 onlineSpyIndex = room.spyIndex;
                 activePlayers = [...onlinePlayers];
-                playersWhoSawRole = [];
                 showOnlineRoleScreen();
             }
-            // التصويت: لو حد ضغط زر التصويت، الكل يخش
-            if(room.voteTrigger && !isVotingActive) {
-                isVotingActive = true;
-                startOnlineVoting();
-            }
-            if(room.voteResults) {
-                showOnlineVoteResults(room.voteResults);
-            }
+            
+            if(room.voteTrigger && !isVotingActive) { isVotingActive = true; startVotingPhase(); }
+            if(room.voteResults) { showVoteResultsScreen(room.voteResults); }
         });
     }
     
@@ -788,7 +783,7 @@
         let locationList = MAP_DATA[selectedMapKey || 'public'];
         let randomLocation = locationList[Math.floor(Math.random() * locationList.length)];
         let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
-        db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy });
+        db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy, ready: [] });
     }
     
     function showOnlineRoleScreen() {
@@ -799,33 +794,32 @@
         document.getElementById('roleContent').innerHTML = isSpy ? `<i class="fas fa-user-secret fa-4x" style="color:red"></i><h2>❗ أنت الجاسوس ❗</h2><p>لا تعرف المكان. استمع جيداً للأسئلة وحاول اكتشافه.</p>` : `<i class="fas fa-map-marker-alt fa-3x" style="color:var(--primary)"></i><p>الموقع السري:</p><h1>${onlineLocation}</h1>`;
         document.getElementById('roleCard').classList.remove('pressed');
         document.getElementById('roleNextContainer').innerHTML = '';
-        attachOnlinePressEvents(document.getElementById('roleCard'), myIndex);
+        attachOnlinePressEvents(document.getElementById('roleCard'));
     }
     
-    function attachOnlinePressEvents(card, playerIdx) {
-        const startPress = (e) => { e.preventDefault(); if (!gameActive) return; card.classList.add('pressed'); 
-            // لما يضغط يشوف دوره، نسجله في Firebase
-            db.ref('rooms/' + currentRoomId + '/seenPlayers').transaction(val => {
-                let seen = val || [];
-                if(!seen.includes(currentPlayerName)) seen.push(currentPlayerName);
-                return seen;
+    function attachOnlinePressEvents(card) {
+        const startPress = (e) => { 
+            e.preventDefault(); 
+            card.classList.add('pressed');
+            db.ref('rooms/' + currentRoomId + '/ready').transaction(val => {
+                let arr = val || [];
+                if(!arr.includes(currentPlayerName)) arr.push(currentPlayerName);
+                return arr;
             });
-            // نفحص لو كل اللاعبين شافوا أدوارهم
-            db.ref('rooms/' + currentRoomId + '/seenPlayers').once('value', snap => {
-                let seen = snap.val() || [];
-                if(seen.length >= onlinePlayers.length) {
-                    // كل اللاعبين شافوا أدوارهم، نبدأ العد التنازلي
+            db.ref('rooms/' + currentRoomId + '/ready').once('value', snap => {
+                let readyArr = snap.val() || [];
+                if(readyArr.length === onlinePlayers.length && onlinePlayers.length > 0) {
                     startGlobalCountdown();
                 }
             });
+            document.getElementById('roleNextContainer').innerHTML = '<div class="ready-status">✅ جاهز! في انتظار الآخرين...</div>';
         };
         const endPress = (e) => { e.preventDefault(); card.classList.remove('pressed'); };
         card.addEventListener('mousedown', startPress); card.addEventListener('mouseup', endPress); card.addEventListener('mouseleave', endPress);
-        card.addEventListener('touchstart', startPress, { passive: false }); card.addEventListener('touchend', endPress); card.addEventListener('touchcancel', endPress);
+        card.addEventListener('touchstart', startPress, { passive: false }); card.addEventListener('touchend', endPress);
     }
     
     function startGlobalCountdown() {
-        // نتأكد إن العد بدأ مرة واحدة بس
         db.ref('rooms/' + currentRoomId + '/countdownStarted').once('value', snap => {
             if(snap.val()) return;
             db.ref('rooms/' + currentRoomId + '/countdownStarted').set(true);
@@ -838,8 +832,9 @@
     function startOnlineGameplay() {
         navTo('gameplay');
         updatePlayersListDisplay(onlinePlayers);
+        document.getElementById('chatContainer').style.display = 'flex';
         startTimer(300);
-        setupChat('online');
+        setupChat();
     }
     
     // ==================== دوال مشتركة ====================
@@ -854,23 +849,18 @@
         timerInterval = setInterval(() => { if(remaining <= 0) { clearInterval(timerInterval); triggerVote(); } else { remaining--; update(); } }, 1000);
     }
     
-    function setupChat(mode) {
+    function setupChat() {
         let container = document.getElementById('chatMessages');
         container.innerHTML = '<div>💬 دخلت غرفة النقاش</div>';
-        if(mode === 'online' && currentRoomId) {
-            if(chatListener) db.ref('rooms/' + currentRoomId + '/chats').off();
-            chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => { let msg = snap.val(); if(msg) { let div = document.createElement('div'); div.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`; container.appendChild(div); container.scrollTop = container.scrollHeight; } });
-        }
+        if(chatListener) db.ref('rooms/' + currentRoomId + '/chats').off();
+        chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => { let msg = snap.val(); if(msg) { let div = document.createElement('div'); div.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`; container.appendChild(div); container.scrollTop = container.scrollHeight; } });
     }
     
     function sendChatMessage() {
         let input = document.getElementById('chatInput');
         let text = input.value.trim();
-        if(!text) return;
-        if(gameMode === 'offline') {
-            let container = document.getElementById('chatMessages');
-            let div = document.createElement('div'); div.innerHTML = `<strong>لاعب:</strong> ${text}`; container.appendChild(div); container.scrollTop = container.scrollHeight;
-        } else if(currentRoomId) { db.ref('rooms/' + currentRoomId + '/chats').push({ name: currentPlayerName, text: text }); }
+        if(!text || !currentRoomId) return;
+        db.ref('rooms/' + currentRoomId + '/chats').push({ name: currentPlayerName, text: text });
         input.value = '';
     }
     
@@ -881,11 +871,6 @@
     }
     
     function startVotingPhase() {
-        votes = {}; voteOrder = [...activePlayers]; currentVoterIndex = 0;
-        showNextVoter();
-    }
-    
-    function startOnlineVoting() {
         votes = {}; voteOrder = [...activePlayers]; currentVoterIndex = 0;
         showNextVoter();
     }
@@ -910,12 +895,12 @@
         let currentSpy = (gameMode === 'offline') ? spyIndex : onlineSpyIndex;
         let isSpy = (accusedIndex === currentSpy);
         let resultMsg = isSpy ? `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!` : `❌ تم اتهام ${accused} (بريء)! الجاسوس ينجو!`;
-        document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3>${Object.entries(voteCount).map(([player, count]) => `<div class="vote-result-row"><span>${player}</span><span class="vote-count">${count} صوت</span></div>`).join('')}<hr><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${accused}</h3><p>حصل على ${maxVotes} صوت</p><p>${resultMsg}</p></div></div>`;
+        document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3>${Object.entries(voteCount).map(([player, count]) => `<div class="vote-result-row"><span>${player}</span><span class="vote-count">${count} صوت</span></div>`).join('')}<hr><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${accused}</h3><p>${resultMsg}</p></div></div>`;
         if(gameMode === 'online') db.ref('rooms/' + currentRoomId).update({ voteResults: { accused: accused, isSpy: isSpy, resultMsg: resultMsg } });
         navTo('voteResultsPage');
     }
     
-    function showOnlineVoteResults(data) {
+    function showVoteResultsScreen(data) {
         document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${data.accused}</h3><p>${data.resultMsg}</p></div></div>`;
         navTo('voteResultsPage');
     }
@@ -945,6 +930,8 @@
     window.toggleMenu = toggleMenu;
     window.switchTheme = switchTheme;
     window.addPlayer = addPlayer;
+    window.copyRoomCode = copyRoomCode;
+    window.navTo = navTo;
 </script>
 
 <div id="intro" style="position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: introFadeOut 0.5s forwards; animation-delay: 3.5s;">
