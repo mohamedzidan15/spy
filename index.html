@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SPY | الجاسوس - ZIDAN DESIGNER</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
@@ -337,7 +337,7 @@
         .chat-container {
             background: rgba(0,0,0,0.5);
             border-radius: 20px;
-            height: 180px;
+            height: 250px;
             display: flex;
             flex-direction: column;
             margin: 15px 0;
@@ -347,6 +347,43 @@
             overflow-y: auto;
             padding: 10px;
             font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        /* تصميم الشات على شكل واتساب */
+        .chat-message {
+            display: flex;
+            margin: 4px 0;
+        }
+        .chat-message.my-message {
+            justify-content: flex-start;
+        }
+        .chat-message.other-message {
+            justify-content: flex-end;
+        }
+        .message-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+        .chat-message.my-message .message-bubble {
+            background: var(--primary);
+            color: #000;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-message.other-message .message-bubble {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+        .message-name {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-bottom: 3px;
+            display: block;
         }
         .chat-input-area {
             display: flex;
@@ -459,6 +496,13 @@
             flex: 1;
             margin-top: 0;
         }
+
+        .map-selector-host {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+        }
     </style>
 </head>
 <body class="theme-cinema">
@@ -564,6 +608,10 @@
             <button class="copy-btn" onclick="copyRoomCode()">📋 نسخ</button>
         </div>
         <div class="players-list" id="waitingPlayersList"></div>
+        <div id="hostMapSelector" class="map-selector-host" style="display: none;">
+            <h3>📍 اختر مسرح الجريمة</h3>
+            <div id="onlineMapList"></div>
+        </div>
         <button class="main-btn" id="startOnlineGameBtn" style="display:none" onclick="hostStartOnlineGame()">🎯 بدء اللعبة</button>
         <button class="main-btn secondary-btn" onclick="leaveOnlineRoom()">مغادرة</button>
     </div>
@@ -655,6 +703,7 @@
     let onlinePlayers = [], onlineSpyIndex = -1, onlineLocation = "", gameStarted = false;
     let chatListener = null;
     let isVotingActive = false;
+    let onlineSelectedMapKey = 'public';
 
     // ==================== دوال مساعدة ====================
     function toggleMenu() { document.getElementById('sideMenu').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
@@ -742,15 +791,54 @@
     function showCreateRoomUI() { navTo('createRoomScreen'); }
     function showJoinRoomUI() { navTo('joinRoomScreen'); }
     
+    function buildOnlineMapListForHost() {
+        const container = document.getElementById('onlineMapList');
+        if(!container) return;
+        container.innerHTML = '';
+        const categories = [
+            { key: 'public', name: 'أماكن عامة', icon: 'fa-city' },
+            { key: 'sci-fi', name: 'خيال علمي', icon: 'fa-atom' },
+            { key: 'travel', name: 'معالم سياحية', icon: 'fa-landmark' },
+            { key: 'home', name: 'المنزل', icon: 'fa-home' },
+            { key: 'cities', name: 'مدن عالمية', icon: 'fa-globe' },
+            { key: 'entertainment', name: 'ترفيه', icon: 'fa-gamepad' }
+        ];
+        categories.forEach(cat => {
+            const div = document.createElement('div'); 
+            div.className = 'map-category' + (cat.key === onlineSelectedMapKey ? ' selected' : ''); 
+            div.innerHTML = `<i class="fas ${cat.icon}"></i><span class="category-name">${cat.name}</span><span class="category-count">${MAP_DATA[cat.key].length} مكان</span>`;
+            div.onclick = () => { 
+                document.querySelectorAll('#onlineMapList .map-category').forEach(c => c.classList.remove('selected')); 
+                div.classList.add('selected'); 
+                onlineSelectedMapKey = cat.key;
+                db.ref('rooms/' + currentRoomId).update({ selectedMap: onlineSelectedMapKey });
+            };
+            container.appendChild(div);
+        });
+    }
+    
     function createOnlineRoom() {
         let name = document.getElementById('onlineHostName').value.trim();
         if(!name) { showNotification("أدخل اسمك"); return; }
         currentPlayerName = name; isHost = true;
         currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        db.ref('rooms/' + currentRoomId).set({ players: [name], host: name, status: "waiting", ready: [], createdAt: Date.now() });
+        db.ref('rooms/' + currentRoomId).set({ 
+            players: [name], 
+            host: name, 
+            status: "waiting", 
+            ready: [], 
+            createdAt: Date.now(),
+            selectedMap: 'public'
+        });
         listenToOnlineRoom();
         document.getElementById('roomCodeText').innerText = currentRoomId;
         navTo('onlineWaitingScreen');
+        setTimeout(() => {
+            if(isHost) {
+                document.getElementById('hostMapSelector').style.display = 'block';
+                buildOnlineMapListForHost();
+            }
+        }, 100);
     }
     
     function joinOnlineRoom() {
@@ -782,6 +870,11 @@
             let startBtn = document.getElementById('startOnlineGameBtn');
             if(startBtn && isHost && onlinePlayers.length >= 3) startBtn.style.display = 'block';
             
+            if(room.selectedMap && isHost) {
+                onlineSelectedMapKey = room.selectedMap;
+                buildOnlineMapListForHost();
+            }
+            
             if(room.status === "playing" && !gameStarted) {
                 gameStarted = true;
                 onlineLocation = room.location;
@@ -791,6 +884,7 @@
             }
             
             if(room.voteTrigger && !isVotingActive) { 
+                if(timerInterval) clearInterval(timerInterval);
                 isVotingActive = true; 
                 startVotingPhase(); 
                 db.ref('rooms/' + currentRoomId + '/voteTrigger').remove();
@@ -807,12 +901,12 @@
     
     function hostStartOnlineGame() {
         if(!isHost) return;
-        let locationList = MAP_DATA[selectedMapKey || 'public'];
+        let locationList = MAP_DATA[onlineSelectedMapKey];
         let randomLocation = locationList[Math.floor(Math.random() * locationList.length)];
         let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
         db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy, ready: [] });
         
-        // عد تنازلي 3 ثواني
+        // عد تنازلي 3 ثواني للجميع
         let count = 3;
         const overlay = document.createElement('div'); overlay.className = 'countdown-overlay'; overlay.innerText = count; document.body.appendChild(overlay);
         const interval = setInterval(() => { count--; if(count <= 0) { clearInterval(interval); overlay.remove(); } else overlay.innerText = count; }, 1000);
@@ -883,9 +977,19 @@
     
     function setupChat() {
         let container = document.getElementById('chatMessages');
-        container.innerHTML = '<div>💬 دخلت غرفة النقاش</div>';
+        container.innerHTML = '';
         if(chatListener) db.ref('rooms/' + currentRoomId + '/chats').off();
-        chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => { let msg = snap.val(); if(msg) { let div = document.createElement('div'); div.innerHTML = `<strong>${msg.name}:</strong> ${msg.text}`; container.appendChild(div); container.scrollTop = container.scrollHeight; } });
+        chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => { 
+            let msg = snap.val(); 
+            if(msg) { 
+                let isMyMessage = (msg.name === currentPlayerName);
+                let div = document.createElement('div');
+                div.className = `chat-message ${isMyMessage ? 'my-message' : 'other-message'}`;
+                div.innerHTML = `<div class="message-bubble"><span class="message-name">${msg.name}</span><br>${msg.text}</div>`;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            } 
+        });
     }
     
     function sendChatMessage() {
@@ -932,6 +1036,7 @@
         
         let accusedIndex = activePlayers.indexOf(accused);
         let currentSpy = (gameMode === 'offline') ? spyIndex : onlineSpyIndex;
+        let currentSpyPlayer = (gameMode === 'offline') ? players[spyIndex] : onlinePlayers[onlineSpyIndex];
         let isSpy = (accusedIndex === currentSpy);
         
         let resultMsg, gameWinner = null;
@@ -943,8 +1048,6 @@
             // إزالة اللاعب المتهم
             activePlayers = activePlayers.filter(p => p !== accused);
             
-            // التحقق من فوز الجاسوس: إذا تبقى لاعب واحد فقط مع الجاسوس
-            let currentSpyPlayer = (gameMode === 'offline') ? players[spyIndex] : onlinePlayers[onlineSpyIndex];
             let isSpyStillInGame = activePlayers.includes(currentSpyPlayer);
             
             if(activePlayers.length <= 2 && isSpyStillInGame) {
@@ -958,7 +1061,6 @@
         
         document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3>${Object.entries(voteCount).map(([player, count]) => `<div class="vote-result-row"><span>${player}</span><span class="vote-count">${count} صوت</span></div>`).join('')}<hr><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${accused}</h3><p>${resultMsg}</p></div></div>`;
         
-        // عرض أزرار مناسبة حسب نهاية اللعبة أو الاستمرار
         const buttonsDiv = document.getElementById('gameOverButtons');
         if(gameWinner === 'agents' || gameWinner === 'spy') {
             buttonsDiv.innerHTML = `
@@ -977,7 +1079,6 @@
     
     function playAgain() {
         if(gameMode === 'offline') {
-            // إعادة تعيين اللعبة مع نفس اللاعبين
             activePlayers = [...players];
             const locationList = MAP_DATA[selectedMapKey];
             currentLocation = locationList[Math.floor(Math.random() * locationList.length)];
@@ -987,8 +1088,7 @@
             gameActive = true;
             showOfflineRoleScreen();
         } else if(gameMode === 'online' && isHost) {
-            // إعادة تعيين اللعبة أونلاين
-            let locationList = MAP_DATA[selectedMapKey || 'public'];
+            let locationList = MAP_DATA[onlineSelectedMapKey];
             let randomLocation = locationList[Math.floor(Math.random() * locationList.length)];
             let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
             db.ref('rooms/' + currentRoomId).update({ 
@@ -1008,7 +1108,6 @@
     }
     
     function continueAfterVote() {
-        // التحقق من فوز الجاسوس مرة أخرى للتأكد
         let currentSpyPlayer = (gameMode === 'offline') ? players[spyIndex] : onlinePlayers[onlineSpyIndex];
         let isSpyStillInGame = activePlayers.includes(currentSpyPlayer);
         
@@ -1019,7 +1118,6 @@
         }
         
         if(gameMode === 'offline') {
-            // استئناف اللعبة مع اللاعبين المتبقين
             navTo('gameplay');
             updatePlayersListDisplay(activePlayers);
             startTimer(selectedTime);
@@ -1052,9 +1150,7 @@
         navTo('voteResultsPage');
     }
     
-    function processVoteResult() { 
-        // تم الاستغناء عن هذه الدالة لصالح continueAfterVote و playAgain
-    }
+    function processVoteResult() { }
     
     function leaveOnlineRoom() { if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); currentRoomId = null; navTo('homeScreen'); gameStarted = false; isVotingActive = false; }
     
