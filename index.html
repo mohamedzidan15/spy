@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SPY | الجاسوس - ZIDAN DESIGNER</title>
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* ==================== الكود الأساسي الأصلي (نفسه بالضبط) ==================== */
+        /* ==================== الكود الأساسي الأصلي ==================== */
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cairo:wght@400;700&family=Amiri:wght@400;700&family=Press+Start+2P&family=Creepster&family=Monoton&family=Rajdhani:wght@400;700&display=swap');
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; user-select: none; }
@@ -351,7 +351,6 @@
             flex-direction: column;
             gap: 8px;
         }
-        /* تصميم الشات على شكل واتساب */
         .chat-message {
             display: flex;
             margin: 4px 0;
@@ -503,6 +502,23 @@
             background: rgba(0,0,0,0.3);
             border-radius: 20px;
         }
+        
+        .enter-game-btn {
+            background: var(--primary);
+            color: #000;
+            margin-top: 20px;
+            padding: 12px;
+            font-weight: bold;
+        }
+        
+        .waiting-for-players {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            color: var(--primary);
+        }
     </style>
 </head>
 <body class="theme-cinema">
@@ -552,7 +568,7 @@
     <div class="video-container" id="videoContainer"></div>
 </div>
 
-<!-- ==================== أوفلاين (نفس الكود الأصلي بالضبط) ==================== -->
+<!-- ==================== أوفلاين ==================== -->
 <div id="mapSelection" class="screen">
     <h2 style="text-align: center;">اختر مسرح الجريمة</h2>
     <div class="map-list" id="mapList"></div>
@@ -574,7 +590,7 @@
     <button class="main-btn" onclick="startOfflineGame()">توزيع الهويات</button>
 </div>
 
-<!-- ==================== أونلاين (شاشات جديدة) ==================== -->
+<!-- ==================== أونلاين ==================== -->
 <div id="onlineMenuScreen" class="screen">
     <div class="card" style="text-align: center; background: var(--card-bg); border-radius: 24px; padding: 30px;">
         <button class="main-btn" onclick="showCreateRoomUI()">➕ إنشاء غرفة جديدة</button>
@@ -617,7 +633,7 @@
     </div>
 </div>
 
-<!-- شاشة الأدوار (مشتركة) -->
+<!-- شاشة الأدوار -->
 <div id="rolesScreen" class="screen">
     <h2 id="turnText" style="text-align: center; color: var(--primary);"></h2>
     <div class="card-container">
@@ -632,7 +648,7 @@
     <div id="roleNextContainer" style="text-align: center; margin-top: 20px;"></div>
 </div>
 
-<!-- شاشة اللعب (مشتركة مع شات في الأونلاين فقط) -->
+<!-- شاشة اللعب -->
 <div id="gameplay" class="screen">
     <div class="timer-text" id="timer">05:00</div>
     <div class="players-list">
@@ -693,7 +709,7 @@
     ];
     
     // ==================== متغيرات عامة ====================
-    let gameMode = null; // 'offline' or 'online'
+    let gameMode = null;
     let players = [], activePlayers = [], spyIndex = -1, currentLocation = "", selectedMapKey = 'public', selectedTime = 300;
     let currentPlayerIndex = 0, hasSeenRole = false, timerInterval = null, gameActive = true;
     let votes = {}, voteOrder = [], currentVoterIndex = 0;
@@ -704,6 +720,7 @@
     let chatListener = null;
     let isVotingActive = false;
     let onlineSelectedMapKey = 'public';
+    let hasEnteredGame = false;
 
     // ==================== دوال مساعدة ====================
     function toggleMenu() { document.getElementById('sideMenu').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
@@ -717,6 +734,7 @@
         gameMode = null; 
         gameActive = true;
         isVotingActive = false;
+        hasEnteredGame = false;
     }
     function goHome() { resetGameToHome(); }
     function copyRoomCode() { const code = document.getElementById('roomCodeText').innerText; navigator.clipboard.writeText(code); showNotification("✅ تم نسخ الكود: " + code); }
@@ -734,7 +752,7 @@
         const closeBtn = document.createElement('button'); closeBtn.className = 'main-btn close-howto-btn'; closeBtn.innerText = 'رجوع للرئيسية'; closeBtn.onclick = () => navTo('homeScreen'); container.appendChild(closeBtn);
     }
 
-    // ==================== أوفلاين (نفس الكود الأصلي بالضبط) ====================
+    // ==================== أوفلاين ====================
     function startOfflineMode() { gameMode = 'offline'; buildMapList(); setupTimeSelector(); buildPlayerList(); navTo('mapSelection'); }
     function buildMapList() {
         const container = document.getElementById('mapList'); container.innerHTML = '';
@@ -777,12 +795,20 @@
         attachPressEvents(document.getElementById('roleCard'), true);
     }
     function attachPressEvents(card, isOffline) {
-        const startPress = (e) => { e.preventDefault(); if (!gameActive) return; card.classList.add('pressed'); if (!hasSeenRole) { hasSeenRole = true; if(isOffline) document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn" onclick="nextOfflinePlayer()">التالي</button>'; } };
+        const startPress = (e) => { e.preventDefault(); if (!gameActive) return; card.classList.add('pressed'); if (!hasSeenRole) { hasSeenRole = true; if(isOffline) document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn enter-game-btn" onclick="enterOfflineGame()">🎮 دخول اللعبة</button>'; } };
         const endPress = (e) => { e.preventDefault(); card.classList.remove('pressed'); };
         card.addEventListener('mousedown', startPress); card.addEventListener('mouseup', endPress); card.addEventListener('mouseleave', endPress);
         card.addEventListener('touchstart', startPress, { passive: false }); card.addEventListener('touchend', endPress); card.addEventListener('touchcancel', endPress);
     }
-    function nextOfflinePlayer() { currentPlayerIndex++; if (currentPlayerIndex < players.length) showOfflineRoleScreen(); else startOfflineGameplay(); }
+    function enterOfflineGame() {
+        currentPlayerIndex++;
+        if (currentPlayerIndex < players.length) {
+            showOfflineRoleScreen();
+        } else {
+            startOfflineGameplay();
+        }
+    }
+    function nextOfflinePlayer() { enterOfflineGame(); }
     function startOfflineGameplay() { updatePlayersListDisplay(players); navTo('gameplay'); document.getElementById('chatContainer').style.display = 'none'; startTimer(selectedTime); }
     
     // ==================== أونلاين ====================
@@ -826,9 +852,10 @@
             players: [name], 
             host: name, 
             status: "waiting", 
-            ready: [], 
             createdAt: Date.now(),
-            selectedMap: 'public'
+            selectedMap: 'public',
+            gameStarted: false,
+            playersEntered: []
         });
         listenToOnlineRoom();
         document.getElementById('roomCodeText').innerText = currentRoomId;
@@ -868,14 +895,14 @@
             let container = document.getElementById('waitingPlayersList');
             if(container) { container.innerHTML = "<h3>اللاعبون:</h3>" + onlinePlayers.map(p => `<div class="player-item"><span>${p}</span>${p === room.host ? ' 👑' : ''}</div>`).join(''); }
             let startBtn = document.getElementById('startOnlineGameBtn');
-            if(startBtn && isHost && onlinePlayers.length >= 3) startBtn.style.display = 'block';
+            if(startBtn && isHost && onlinePlayers.length >= 3 && !room.gameStarted) startBtn.style.display = 'block';
             
             if(room.selectedMap && isHost) {
                 onlineSelectedMapKey = room.selectedMap;
                 buildOnlineMapListForHost();
             }
             
-            if(room.status === "playing" && !gameStarted) {
+            if(room.status === "playing" && !gameStarted && room.gameStarted) {
                 gameStarted = true;
                 onlineLocation = room.location;
                 onlineSpyIndex = room.spyIndex;
@@ -904,9 +931,14 @@
         let locationList = MAP_DATA[onlineSelectedMapKey];
         let randomLocation = locationList[Math.floor(Math.random() * locationList.length)];
         let randomSpy = Math.floor(Math.random() * onlinePlayers.length);
-        db.ref('rooms/' + currentRoomId).update({ status: "playing", location: randomLocation, spyIndex: randomSpy, ready: [] });
+        db.ref('rooms/' + currentRoomId).update({ 
+            status: "playing", 
+            location: randomLocation, 
+            spyIndex: randomSpy, 
+            gameStarted: true,
+            playersEntered: []
+        });
         
-        // عد تنازلي 3 ثواني للجميع
         let count = 3;
         const overlay = document.createElement('div'); overlay.className = 'countdown-overlay'; overlay.innerText = count; document.body.appendChild(overlay);
         const interval = setInterval(() => { count--; if(count <= 0) { clearInterval(interval); overlay.remove(); } else overlay.innerText = count; }, 1000);
@@ -927,31 +959,35 @@
         const startPress = (e) => { 
             e.preventDefault(); 
             card.classList.add('pressed');
-            db.ref('rooms/' + currentRoomId + '/ready').transaction(val => {
-                let arr = val || [];
-                if(!arr.includes(currentPlayerName)) arr.push(currentPlayerName);
-                return arr;
-            });
-            db.ref('rooms/' + currentRoomId + '/ready').once('value', snap => {
-                let readyArr = snap.val() || [];
-                if(readyArr.length === onlinePlayers.length && onlinePlayers.length > 0) {
-                    startGlobalCountdown();
-                }
-            });
-            document.getElementById('roleNextContainer').innerHTML = '<div class="ready-status">✅ جاهز! في انتظار الآخرين...</div>';
+            if (!hasSeenRole) { 
+                hasSeenRole = true;
+                document.getElementById('roleNextContainer').innerHTML = '<button class="main-btn enter-game-btn" onclick="enterOnlineGame()">🎮 دخول اللعبة</button>';
+            }
         };
         const endPress = (e) => { e.preventDefault(); card.classList.remove('pressed'); };
         card.addEventListener('mousedown', startPress); card.addEventListener('mouseup', endPress); card.addEventListener('mouseleave', endPress);
         card.addEventListener('touchstart', startPress, { passive: false }); card.addEventListener('touchend', endPress);
     }
     
-    function startGlobalCountdown() {
-        db.ref('rooms/' + currentRoomId + '/countdownStarted').once('value', snap => {
-            if(snap.val()) return;
-            db.ref('rooms/' + currentRoomId + '/countdownStarted').set(true);
-            let count = 5;
-            const overlay = document.createElement('div'); overlay.className = 'countdown-overlay'; overlay.innerText = count; document.body.appendChild(overlay);
-            const interval = setInterval(() => { count--; if(count <= 0) { clearInterval(interval); overlay.remove(); startOnlineGameplay(); } else overlay.innerText = count; }, 1000);
+    function enterOnlineGame() {
+        if(hasEnteredGame) return;
+        hasEnteredGame = true;
+        
+        db.ref('rooms/' + currentRoomId + '/playersEntered').transaction(val => {
+            let arr = val || [];
+            if(!arr.includes(currentPlayerName)) arr.push(currentPlayerName);
+            return arr;
+        });
+        
+        document.getElementById('roleNextContainer').innerHTML = '<div class="waiting-for-players">⏳ في انتظار دخول باقي اللاعبين...</div>';
+        
+        const checkAllEntered = db.ref('rooms/' + currentRoomId + '/playersEntered');
+        const checkHandler = checkAllEntered.on('value', snap => {
+            let entered = snap.val() || [];
+            if(entered.length === onlinePlayers.length) {
+                checkAllEntered.off('value', checkHandler);
+                startOnlineGameplay();
+            }
         });
     }
     
@@ -1045,9 +1081,7 @@
             resultMsg = `✅ تم اكتشاف الجاسوس (${accused})! العملاء يفوزون!`;
             gameWinner = 'agents';
         } else {
-            // إزالة اللاعب المتهم
             activePlayers = activePlayers.filter(p => p !== accused);
-            
             let isSpyStillInGame = activePlayers.includes(currentSpyPlayer);
             
             if(activePlayers.length <= 2 && isSpyStillInGame) {
@@ -1095,12 +1129,13 @@
                 status: "playing", 
                 location: randomLocation, 
                 spyIndex: randomSpy, 
-                ready: [],
                 voteResults: null,
-                countdownStarted: null
+                playersEntered: [],
+                gameStarted: true
             });
             gameStarted = false;
             isVotingActive = false;
+            hasEnteredGame = false;
             onlineLocation = randomLocation;
             onlineSpyIndex = randomSpy;
             showOnlineRoleScreen();
@@ -1150,15 +1185,12 @@
         navTo('voteResultsPage');
     }
     
-    function processVoteResult() { }
-    
-    function leaveOnlineRoom() { if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); currentRoomId = null; navTo('homeScreen'); gameStarted = false; isVotingActive = false; }
+    function leaveOnlineRoom() { if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); currentRoomId = null; navTo('homeScreen'); gameStarted = false; isVotingActive = false; hasEnteredGame = false; }
     
     // ربط الدوال
     window.attachPressEvents = attachPressEvents;
     window.nextOfflinePlayer = nextOfflinePlayer;
     window.triggerVote = triggerVote;
-    window.processVoteResult = processVoteResult;
     window.sendChatMessage = sendChatMessage;
     window.startOfflineMode = startOfflineMode;
     window.showOnlineMenu = showOnlineMenu;
@@ -1179,6 +1211,8 @@
     window.navTo = navTo;
     window.playAgain = playAgain;
     window.continueAfterVote = continueAfterVote;
+    window.enterOfflineGame = enterOfflineGame;
+    window.enterOnlineGame = enterOnlineGame;
 </script>
 
 <div id="intro" style="position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: introFadeOut 0.5s forwards; animation-delay: 3.5s;">
