@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- PeerJS للصوت المباشر -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         /* ==================== الكود الأساسي الأصلي ==================== */
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Cairo:wght@400;700&family=Amiri:wght@400;700&family=Press+Start+2P&family=Creepster&family=Monoton&family=Rajdhani:wght@400;700&display=swap');
@@ -458,6 +460,122 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* ==================== أنماط الميكروفون والصوت ==================== */
+        .player-with-mic {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            margin: 8px 0;
+            border-radius: 16px;
+        }
+        .player-name-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        .mic-icon {
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 35px;
+            text-align: center;
+        }
+        .mic-icon.mic-on {
+            color: #4caf50;
+        }
+        .mic-icon.mic-off {
+            color: #f44336;
+        }
+        .mic-icon.mic-speaking {
+            animation: micPulse 0.3s ease-in-out infinite;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+        @keyframes micPulse {
+            0% { transform: scale(1); text-shadow: 0 0 0 #ffd700; }
+            50% { transform: scale(1.2); text-shadow: 0 0 15px #ffd700; }
+            100% { transform: scale(1); text-shadow: 0 0 0 #ffd700; }
+        }
+        
+        /* زر الميكروفون الرئيسي */
+        .mic-control-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 200;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            transition: 0.2s;
+            border: none;
+        }
+        .mic-control-btn:active { transform: scale(0.95); }
+        .mic-control-btn.mic-muted { background: #f44336; color: #fff; }
+        
+        /* ==================== شاشة الأسئلة المتناوب (أوفلاين) ==================== */
+        .question-turn-container {
+            background: var(--card-bg, rgba(0,0,0,0.7));
+            border-radius: 30px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 2px solid var(--primary);
+        }
+        .question-turn-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        .question-turn-asker {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .question-turn-target {
+            font-size: 1.8rem;
+            color: #ffd966;
+            margin-bottom: 20px;
+        }
+        .question-turn-arrow {
+            font-size: 2rem;
+            margin: 10px 0;
+        }
+        .question-timer {
+            font-size: 2rem;
+            font-family: monospace;
+            background: rgba(0,0,0,0.5);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 40px;
+            margin: 15px 0;
+        }
+        .question-progress {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 15px;
+        }
+        .next-question-btn, .spy-catch-btn {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        .next-question-btn { background: var(--primary); color: #000; }
+        .spy-catch-btn { background: #d32f2f; color: #fff; }
+        
         body.theme-cinema { --primary: #ffd93d; --card-bg: rgba(0,0,0,0.6); background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%); color: #ffd93d; }
         body.theme-newspaper { --primary: #d4af7a; --card-bg: rgba(0,0,0,0.6); background: #1a140e; color: #d4af7a; }
         body.theme-warzone { --primary: #8b7355; --card-bg: rgba(0,0,0,0.7); background: #0f0c08; color: #8b7355; }
@@ -559,7 +677,7 @@
     <button class="main-btn" onclick="switchTheme('newspaper')">خشبي</button>
     <button class="main-btn" onclick="switchTheme('cartoon')">كارتوني</button>
     <hr style="margin: 15px 0; border-color: #333;">
-    <div class="info-card"><i class="fas fa-user-secret fa-2x" style="color: var(--primary);"></i><p style="margin-top: 10px;">إصدار 1.1.0</p><p>تصميم: Mohamed Zidan</p></div>
+    <div class="info-card"><i class="fas fa-user-secret fa-2x" style="color: var(--primary);"></i><p style="margin-top: 10px;">إصدار 1.2.0</p><p>تصميم: Mohamed Zidan</p></div>
     <button class="main-btn" onclick="resetGameToHome()" style="background: #333; color: #fff;">الرئيسية</button>
 </div>
 
@@ -680,16 +798,40 @@
     <button class="main-btn" id="voteBtn" style="background: #d32f2f;" onclick="triggerVote()">اتهام الجاسوس</button>
 </div>
 
+<!-- شاشة الأسئلة المتناوب (أوفلاين) -->
+<div id="questionTurnScreen" class="screen">
+    <div class="question-turn-container" id="questionTurnContainer">
+        <div class="question-turn-title">🎤 دور الأسئلة 🎤</div>
+        <div class="question-turn-asker" id="askerName">اللاعب</div>
+        <div class="question-turn-arrow">⬇️ يسأل ⬇️</div>
+        <div class="question-turn-target" id="targetName">اللاعب الآخر</div>
+        <div class="question-timer" id="questionTimer">00:30</div>
+        <div class="question-progress" id="questionProgress">سؤال 1 من 12</div>
+        <button class="next-question-btn" id="nextQuestionBtn" onclick="nextQuestion()">⏩ السؤال التالي</button>
+        <button class="spy-catch-btn" id="spyCatchBtn" onclick="catchSpyNow()">🕵️ اكتشفت الجاسوس! ⚡</button>
+    </div>
+    <div class="players-list" style="margin-top: 20px;">
+        <h3>👥 اللاعبون</h3>
+        <div id="questionPlayersList"></div>
+    </div>
+</div>
+
 <div id="votePage" class="screen">
     <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">🗳️ التصويت</h2>
     <div id="voteSimultaneousContainer"></div>
-    <div id="voteTurnContainer"></div> </div>
+    <div id="voteTurnContainer"></div>
+</div>
 
 <div id="voteResultsPage" class="screen">
     <h2 style="text-align: center; color: var(--primary); margin-bottom: 20px;">📊 نتيجة التصويت</h2>
     <div id="resultsSection"></div>
     <div id="gameOverButtons" class="game-over-buttons"></div>
 </div>
+
+<!-- زر الميكروفون الرئيسي (يظهر فقط في وضع الأونلاين) -->
+<button id="micMainControlBtn" class="mic-control-btn" style="display: none;" onclick="toggleMicrophone()">
+    <i class="fas fa-microphone"></i>
+</button>
 
 <script>
     // ==================== Firebase Config ====================
@@ -738,7 +880,25 @@
     let hasEnteredGame = false;
     let voteListener = null;
     let hasVoted = false;
-
+    
+    // ==================== متغيرات الصوت المباشر ====================
+    let peer = null;
+    let localStream = null;
+    let isMicMuted = false;
+    let audioContext = null;
+    let mediaStream = null;
+    let volumeInterval = null;
+    let peersConnections = {}; // تخزين اتصالات الصوت مع اللاعبين الآخرين
+    
+    // ==================== متغيرات الأسئلة المتناوب (أوفلاين) ====================
+    let questionTurnInterval = null;
+    let currentAskerIndex = 0;
+    let currentTargetIndex = 1;
+    let questionNumber = 1;
+    let questionRemainingTime = 30;
+    let isQuestionModeActive = false;
+    let questionTotalRounds = 0;
+    
     // ==================== دوال مساعدة ====================
     function toggleMenu() { document.getElementById('sideMenu').classList.toggle('open'); document.getElementById('overlay').classList.toggle('show'); }
     function navTo(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
@@ -746,6 +906,8 @@
     function switchTheme(theme) { document.body.className = 'theme-' + theme; toggleMenu(); const quickIntro = document.getElementById('quickIntro'); quickIntro.classList.add('show'); setTimeout(() => quickIntro.classList.remove('show'), 500); }
     function resetGameToHome() { 
         if(timerInterval) clearInterval(timerInterval); 
+        if(questionTurnInterval) clearInterval(questionTurnInterval);
+        stopMicrophone(); // إيقاف الميكروفون عند الخروج
         if(currentRoomId) leaveOnlineRoom(); 
         navTo('homeScreen'); 
         gameMode = null; 
@@ -753,6 +915,8 @@
         isVotingActive = false;
         hasEnteredGame = false;
         hasVoted = false;
+        isQuestionModeActive = false;
+        document.getElementById('micMainControlBtn').style.display = 'none';
     }
     function goHome() { resetGameToHome(); }
     function copyRoomCode() { const code = document.getElementById('roomCodeText').innerText; navigator.clipboard.writeText(code); showNotification("✅ تم نسخ الكود: " + code); }
@@ -823,10 +987,124 @@
         if (currentPlayerIndex < players.length) {
             showOfflineRoleScreen();
         } else {
-            startOfflineGameplay();
+            startOfflineQuestionMode(); // تشغيل نظام الأسئلة المتناوب بدلاً من النقاش العادي
         }
     }
-    function startOfflineGameplay() { updatePlayersListDisplay(players); navTo('gameplay'); document.getElementById('chatContainer').style.display = 'none'; startTimer(selectedTime); }
+    
+    // ==================== نظام الأسئلة المتناوب (أوفلاين) ====================
+    function startOfflineQuestionMode() {
+        isQuestionModeActive = true;
+        questionNumber = 1;
+        currentAskerIndex = 0;
+        currentTargetIndex = 1;
+        // حساب عدد الجولات: كل لاعب يسأل كل لاعب آخر مرة واحدة على الأقل
+        questionTotalRounds = players.length * (players.length - 1);
+        
+        updateQuestionPlayersList();
+        showQuestionTurnScreen();
+        startQuestionTimer();
+    }
+    
+    function updateQuestionPlayersList() {
+        const container = document.getElementById('questionPlayersList');
+        if(!container) return;
+        let spyName = players[spyIndex];
+        container.innerHTML = activePlayers.map(p => {
+            let isSpy = (p === spyName);
+            return `<div style="display:flex; justify-content:space-between; padding:8px; background:rgba(0,0,0,0.3); margin:5px 0; border-radius:12px;">
+                        <span>${p} ${isSpy ? '🕵️ (جاسوس محتمل)' : ''}</span>
+                    </div>`;
+        }).join('');
+    }
+    
+    function showQuestionTurnScreen() {
+        navTo('questionTurnScreen');
+        updateQuestionDisplay();
+    }
+    
+    function updateQuestionDisplay() {
+        const askerName = players[currentAskerIndex];
+        const targetName = players[currentTargetIndex];
+        document.getElementById('askerName').innerText = askerName;
+        document.getElementById('targetName').innerText = targetName;
+        document.getElementById('questionProgress').innerText = `سؤال ${questionNumber} من ${questionTotalRounds}`;
+        document.getElementById('questionTimer').innerText = formatTime(questionRemainingTime);
+    }
+    
+    function startQuestionTimer() {
+        if(questionTurnInterval) clearInterval(questionTurnInterval);
+        questionRemainingTime = 30;
+        updateQuestionDisplay();
+        
+        questionTurnInterval = setInterval(() => {
+            if(!isQuestionModeActive) return;
+            questionRemainingTime--;
+            document.getElementById('questionTimer').innerText = formatTime(questionRemainingTime);
+            
+            if(questionRemainingTime <= 0) {
+                // وقت السؤال انتهى، انتقل للسؤال التالي
+                clearInterval(questionTurnInterval);
+                nextQuestion();
+            }
+        }, 1000);
+    }
+    
+    function formatTime(seconds) {
+        let m = Math.floor(seconds / 60);
+        let s = seconds % 60;
+        return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+    
+    function nextQuestion() {
+        if(!isQuestionModeActive) return;
+        
+        // انتقل للزوج التالي من الأسئلة
+        currentTargetIndex++;
+        if(currentTargetIndex >= players.length) {
+            currentAskerIndex++;
+            currentTargetIndex = 0;
+            // تخطي السؤال على النفس
+            if(currentTargetIndex === currentAskerIndex) currentTargetIndex++;
+        }
+        if(currentTargetIndex >= players.length) {
+            currentTargetIndex = 0;
+        }
+        if(currentTargetIndex === currentAskerIndex) {
+            currentTargetIndex++;
+            if(currentTargetIndex >= players.length) currentTargetIndex = 0;
+        }
+        
+        questionNumber++;
+        
+        // التحقق من انتهاء الجولات أو انتهاء الوقت العام
+        if(questionNumber > questionTotalRounds) {
+            // انتهت جميع الأسئلة، انتقل للتصويت
+            clearInterval(questionTurnInterval);
+            isQuestionModeActive = false;
+            showNotification("⏰ انتهت جولات الأسئلة! حان وقت التصويت.");
+            startOfflineVote();
+            return;
+        }
+        
+        // التحقق من انتهاء الوقت العام (المحدد من قبل المستخدم)
+        // الوقت العام يتم التحكم به بواسطة المؤقت الأصلي
+        
+        updateQuestionDisplay();
+        startQuestionTimer();
+    }
+    
+    function catchSpyNow() {
+        // تم اكتشاف الجاسوس، انتقل للتصويت فوراً
+        if(questionTurnInterval) clearInterval(questionTurnInterval);
+        isQuestionModeActive = false;
+        showNotification("🕵️ تم اكتشاف الجاسوس! حان وقت التصويت.");
+        startOfflineVote();
+    }
+    
+    // تعديل دالة startOfflineGameplay الأصلية لاستخدام نظام الأسئلة
+    function startOfflineGameplay() {
+        // تم استبدالها بـ startOfflineQuestionMode
+    }
     
     // ==================== أونلاين ====================
     function showOnlineMenu() { gameMode = 'online'; navTo('onlineMenuScreen'); }
@@ -865,13 +1143,18 @@
         if(!name) { showNotification("أدخل اسمك"); return; }
         currentPlayerName = name; isHost = true;
         currentRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        
+        // بدء PeerJS للصوت
+        initPeerAndMic();
+        
         db.ref('rooms/' + currentRoomId).set({ 
             players: [name], 
             host: name, 
             status: "waiting", 
             createdAt: Date.now(),
             selectedMap: 'public',
-            gameStarted: false
+            gameStarted: false,
+            peerId: peer ? peer.id : null
         });
         listenToOnlineRoom();
         document.getElementById('roomCodeText').innerText = currentRoomId;
@@ -884,6 +1167,140 @@
         }, 100);
     }
     
+    function initPeerAndMic() {
+        // إنشاء PeerJS
+        peer = new Peer();
+        peer.on('open', (id) => {
+            console.log('Peer ID:', id);
+            if(currentRoomId) {
+                db.ref('rooms/' + currentRoomId + '/peerIds/' + currentPlayerName).set(id);
+            }
+        });
+        
+        peer.on('call', (call) => {
+            // استقبال مكالمة صوتية من لاعب آخر
+            if(localStream) {
+                call.answer(localStream);
+                call.on('stream', (remoteStream) => {
+                    // يمكن استخدام remoteStream للاستماع للاعب الآخر
+                    console.log('Received stream from', call.peer);
+                });
+                peersConnections[call.peer] = call;
+            }
+        });
+    }
+    
+    function startMicrophone() {
+        if(mediaStream) return;
+        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(stream => {
+                mediaStream = stream;
+                localStream = stream;
+                isMicMuted = false;
+                document.getElementById('micMainControlBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+                document.getElementById('micMainControlBtn').classList.remove('mic-muted');
+                
+                // إعداد تحليل الصوت لكشف مستوى الصوت
+                setupAudioAnalysis(stream);
+                
+                // الاتصال بجميع اللاعبين الموجودين في الغرفة
+                connectToAllPeers();
+            })
+            .catch(err => {
+                console.error('Microphone error:', err);
+                showNotification("لا يمكن الوصول إلى الميكروفون. تأكد من منح الإذن.");
+            });
+    }
+    
+    function setupAudioAnalysis(stream) {
+        if(audioContext) audioContext.close();
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(stream);
+        const analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        source.connect(analyser);
+        
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        if(volumeInterval) clearInterval(volumeInterval);
+        volumeInterval = setInterval(() => {
+            if(isMicMuted) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for(let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+            let avg = sum / dataArray.length;
+            if(avg > 20) {
+                // المستخدم يتحدث، أرسل إشارة للجميع
+                if(currentRoomId) {
+                    db.ref('rooms/' + currentRoomId + '/speaking/' + currentPlayerName).set(true);
+                    setTimeout(() => {
+                        db.ref('rooms/' + currentRoomId + '/speaking/' + currentPlayerName).remove();
+                    }, 500);
+                }
+            }
+        }, 150);
+    }
+    
+    function connectToAllPeers() {
+        if(!peer) return;
+        db.ref('rooms/' + currentRoomId + '/peerIds').once('value', (snap) => {
+            const peersData = snap.val() || {};
+            for(let [name, peerId] of Object.entries(peersData)) {
+                if(name !== currentPlayerName && peerId && peerId !== peer.id) {
+                    if(!peersConnections[peerId]) {
+                        const call = peer.call(peerId, localStream);
+                        call.on('stream', (remoteStream) => {
+                            console.log('Connected to', name);
+                        });
+                        peersConnections[peerId] = call;
+                    }
+                }
+            }
+        });
+    }
+    
+    function toggleMicrophone() {
+        if(!mediaStream) {
+            startMicrophone();
+            return;
+        }
+        isMicMuted = !isMicMuted;
+        if(mediaStream) {
+            mediaStream.getAudioTracks().forEach(track => {
+                track.enabled = !isMicMuted;
+            });
+        }
+        const btn = document.getElementById('micMainControlBtn');
+        if(isMicMuted) {
+            btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            btn.classList.add('mic-muted');
+        } else {
+            btn.innerHTML = '<i class="fas fa-microphone"></i>';
+            btn.classList.remove('mic-muted');
+        }
+    }
+    
+    function stopMicrophone() {
+        if(volumeInterval) clearInterval(volumeInterval);
+        if(mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+        if(audioContext) audioContext.close();
+        localStream = null;
+    }
+    
+    function updateMicIconsInRoom(playersList) {
+        // تحديث أيقونات الميكروفون في واجهة الغرفة
+        const container = document.getElementById('waitingPlayersList');
+        if(container) {
+            db.ref('rooms/' + currentRoomId + '/speaking').on('value', (snap) => {
+                const speaking = snap.val() || {};
+                // تحديث أيقونات المتحدثين (يمكن تنفيذها بشكل أكثر تفصيلاً)
+            });
+        }
+    }
+    
     function joinOnlineRoom() {
         let code = document.getElementById('joinRoomCodeInput').value.trim().toUpperCase();
         let name = document.getElementById('joinPlayerNameInput').value.trim();
@@ -894,11 +1311,21 @@
             if(room.status !== "waiting") { showNotification("اللعبة بدأت بالفعل"); return; }
             if(room.players.includes(name)) { showNotification("الاسم موجود"); return; }
             room.players.push(name);
+            
+            // بدء PeerJS للصوت
+            initPeerAndMic();
+            
             db.ref('rooms/' + code).update({ players: room.players }).then(() => {
                 currentRoomId = code; currentPlayerName = name; isHost = false;
+                // تسجيل peerId
+                if(peer) {
+                    db.ref('rooms/' + code + '/peerIds/' + name).set(peer.id);
+                }
                 listenToOnlineRoom();
                 document.getElementById('roomCodeText').innerText = code;
                 navTo('onlineWaitingScreen');
+                // بدء الميكروفون تلقائياً
+                setTimeout(() => startMicrophone(), 1000);
             });
         });
     }
@@ -909,7 +1336,20 @@
             if(!room) return;
             onlinePlayers = room.players || [];
             let container = document.getElementById('waitingPlayersList');
-            if(container) { container.innerHTML = "<h3>اللاعبون:</h3>" + onlinePlayers.map(p => `<div class="player-item"><span>${p}</span>${p === room.host ? ' 👑' : ''}</div>`).join(''); }
+            if(container) { 
+                // عرض اللاعبين مع أيقونات الميكروفون
+                const speakingData = room.speaking || {};
+                container.innerHTML = "<h3>اللاعبون:</h3>" + onlinePlayers.map(p => {
+                    const isSpeaking = speakingData[p];
+                    const micClass = isSpeaking ? 'mic-speaking' : 'mic-on';
+                    return `<div class="player-with-mic">
+                                <div class="player-name-container">
+                                    <i class="fas fa-microphone ${micClass} mic-icon"></i>
+                                    <span>${p}${p === room.host ? ' 👑' : ''}</span>
+                                </div>
+                            </div>`;
+                }).join(''); 
+            }
             let startBtn = document.getElementById('startOnlineGameBtn');
             if(startBtn && isHost && onlinePlayers.length >= 3 && !room.gameStarted) startBtn.style.display = 'block';
             
@@ -924,6 +1364,8 @@
                 onlineSpyIndex = room.spyIndex;
                 activePlayers = [...onlinePlayers];
                 showOnlineRoleScreen();
+                // إظهار زر الميكروفون في وضع الأونلاين
+                document.getElementById('micMainControlBtn').style.display = 'flex';
             }
             
             if(room.voteTrigger && !isVotingActive) { 
@@ -940,6 +1382,16 @@
             if(room.nextRound) {
                 continueAfterVote();
                 db.ref('rooms/' + currentRoomId + '/nextRound').remove();
+            }
+            
+            // تحديث أيقونات الميكروفون أثناء اللعب
+            if(room.speaking) {
+                const playersListContainer = document.getElementById('playersNamesList');
+                if(playersListContainer) {
+                    const speakingData = room.speaking;
+                    const playersDivs = playersListContainer.querySelectorAll('.player-with-mic');
+                    // تحديث ديناميكي (يمكن تحسينه)
+                }
             }
         });
     }
@@ -994,10 +1446,63 @@
     
     function startOnlineGameplay() {
         navTo('gameplay');
-        updatePlayersListDisplay(onlinePlayers);
+        // تحديث عرض اللاعبين مع أيقونات الميكروفون
+        updatePlayersListWithMic(onlinePlayers);
         document.getElementById('chatContainer').style.display = 'flex';
         startTimer(300);
         setupChat();
+        setupSpeakingListener();
+    }
+    
+    function updatePlayersListWithMic(list) {
+        const container = document.getElementById('playersNamesList');
+        if(!container) return;
+        // سيتم تحديثها ديناميكياً من خلال الاستماع لحالة التحدث
+        container.innerHTML = list.map(p => `<div class="player-with-mic" data-player="${p}">
+                                                <div class="player-name-container">
+                                                    <i class="fas fa-microphone mic-icon mic-on"></i>
+                                                    <span>${p}</span>
+                                                </div>
+                                            </div>`).join('');
+    }
+    
+    function setupSpeakingListener() {
+        db.ref('rooms/' + currentRoomId + '/speaking').on('value', (snap) => {
+            const speaking = snap.val() || {};
+            const playersDivs = document.querySelectorAll('#playersNamesList .player-with-mic');
+            playersDivs.forEach(div => {
+                const playerName = div.getAttribute('data-player');
+                const micIcon = div.querySelector('.mic-icon');
+                if(micIcon) {
+                    if(speaking[playerName]) {
+                        micIcon.classList.add('mic-speaking');
+                        micIcon.classList.remove('mic-on');
+                    } else {
+                        micIcon.classList.remove('mic-speaking');
+                        micIcon.classList.add('mic-on');
+                    }
+                }
+            });
+            
+            // تحديث في غرفة الانتظار أيضاً
+            const waitingContainer = document.getElementById('waitingPlayersList');
+            if(waitingContainer) {
+                const waitingPlayersDivs = waitingContainer.querySelectorAll('.player-with-mic');
+                waitingPlayersDivs.forEach(div => {
+                    const playerName = div.querySelector('span')?.innerText.split(' ')[0];
+                    const micIcon = div.querySelector('.mic-icon');
+                    if(micIcon && playerName) {
+                        if(speaking[playerName]) {
+                            micIcon.classList.add('mic-speaking');
+                            micIcon.classList.remove('mic-on');
+                        } else {
+                            micIcon.classList.remove('mic-speaking');
+                            micIcon.classList.add('mic-on');
+                        }
+                    }
+                });
+            }
+        });
     }
     
     // ==================== نظام التصويت المتزامن (أونلاين) ====================
@@ -1068,7 +1573,12 @@
     }
     
     // ==================== دوال مشتركة ====================
-    function updatePlayersListDisplay(list) { document.getElementById('playersNamesList').innerHTML = list.map(p => `<div style="padding:8px; background:var(--card-bg); margin:5px 0; border-radius:12px;">🎭 ${p}</div>`).join(''); }
+    function updatePlayersListDisplay(list) { 
+        const container = document.getElementById('playersNamesList');
+        if(container) {
+            container.innerHTML = list.map(p => `<div style="padding:8px; background:var(--card-bg); margin:5px 0; border-radius:12px;">🎭 ${p}</div>`).join('');
+        }
+    }
     
     function startTimer(seconds) {
         if(timerInterval) clearInterval(timerInterval);
@@ -1076,15 +1586,24 @@
         const timerEl = document.getElementById('timer');
         function update() { let m = Math.floor(remaining/60), s = remaining%60; timerEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
         update();
-        timerInterval = setInterval(() => { if(remaining <= 0) { clearInterval(timerInterval); triggerVote(); } else { remaining--; update(); } }, 1000);
+        timerInterval = setInterval(() => { 
+            if(remaining <= 0) { 
+                clearInterval(timerInterval); 
+                if(!isQuestionModeActive) triggerVote(); 
+                else if(isQuestionModeActive) catchSpyNow();
+            } else { 
+                remaining--; 
+                update(); 
+            } 
+        }, 1000);
     }
     
     function setupChat() {
-        let container = document.getElementById('chatMessages'); container.innerHTML = '';
+        let container = document.getElementById('chatMessages'); if(container) container.innerHTML = '';
         if(chatListener) db.ref('rooms/' + currentRoomId + '/chats').off();
         chatListener = db.ref('rooms/' + currentRoomId + '/chats').on('child_added', snap => { 
             let msg = snap.val(); 
-            if(msg) { 
+            if(msg && container) { 
                 let isMyMessage = (msg.name === currentPlayerName);
                 let div = document.createElement('div');
                 div.className = `chat-message ${isMyMessage ? 'my-message' : 'other-message'}`;
@@ -1096,7 +1615,9 @@
     }
     
     function sendChatMessage() {
-        let input = document.getElementById('chatInput'); let text = input.value.trim();
+        let input = document.getElementById('chatInput'); 
+        if(!input) return;
+        let text = input.value.trim();
         if(!text || !currentRoomId) return;
         db.ref('rooms/' + currentRoomId + '/chats').push({ name: currentPlayerName, text: text });
         input.value = '';
@@ -1104,6 +1625,7 @@
     
     function triggerVote() {
         if(timerInterval) clearInterval(timerInterval);
+        if(isQuestionTurnInterval) clearInterval(questionTurnInterval);
         if(gameMode === 'online') { db.ref('rooms/' + currentRoomId).update({ voteTrigger: true }); }
         else { startOfflineVote(); }
     }
@@ -1124,17 +1646,19 @@
         let others = activePlayers.filter(p => p !== voter);
         let container = document.getElementById('voteTurnContainer');
         
-        container.innerHTML = `
-            <div class="vote-turn-card" id="turnCard">
-                <p style="margin-bottom:10px; opacity:0.8;">دور اللاعب الحالي:</p>
-                <div class="vote-turn-name">👤 ${voter}</div>
-                <div id="voterActionArea">
-                    <p style="color:var(--primary); margin-bottom:15px;">اعطِ الجهاز لـ ${voter} ثم اضغط الزر بالأسفل</p>
-                    <button class="main-btn" onclick="revealVoterOptions('${voter}')">أنا ${voter}، سأصوت الآن</button>
+        if(container) {
+            container.innerHTML = `
+                <div class="vote-turn-card" id="turnCard">
+                    <p style="margin-bottom:10px; opacity:0.8;">دور اللاعب الحالي:</p>
+                    <div class="vote-turn-name">👤 ${voter}</div>
+                    <div id="voterActionArea">
+                        <p style="color:var(--primary); margin-bottom:15px;">اعطِ الجهاز لـ ${voter} ثم اضغط الزر بالأسفل</p>
+                        <button class="main-btn" onclick="revealVoterOptions('${voter}')">أنا ${voter}، سأصوت الآن</button>
+                    </div>
+                    <div class="vote-progress" style="margin-top:20px;">تصويت ${currentVoterIndex + 1} من ${voteOrder.length}</div>
                 </div>
-                <div class="vote-progress" style="margin-top:20px;">تصويت ${currentVoterIndex + 1} من ${voteOrder.length}</div>
-            </div>
-        `;
+            `;
+        }
         navTo('votePage');
     }
 
@@ -1142,26 +1666,30 @@
         let others = activePlayers.filter(p => p !== voter);
         let actionArea = document.getElementById('voterActionArea');
         
-        let html = `<p style="margin-bottom:15px;">اختر الشخص الذي تعتقد أنه الجاسوس:</p><div class="vote-options">`;
-        others.forEach(p => {
-            html += `<div class="vote-option-btn" onclick="saveOfflineVote('${voter}', '${p}')">${p}</div>`;
-        });
-        html += `</div>`;
-        actionArea.innerHTML = html;
+        if(actionArea) {
+            let html = `<p style="margin-bottom:15px;">اختر الشخص الذي تعتقد أنه الجاسوس:</p><div class="vote-options">`;
+            others.forEach(p => {
+                html += `<div class="vote-option-btn" onclick="saveOfflineVote('${voter}', '${p}')">${p}</div>`;
+            });
+            html += `</div>`;
+            actionArea.innerHTML = html;
+        }
     }
 
     function saveOfflineVote(voter, selectedPlayer) {
         votes[voter] = selectedPlayer;
         currentVoterIndex++;
         
-        // إخفاء الخيارات فوراً لمنع اللاعب التالي من رؤيتها
-        document.getElementById('voterActionArea').innerHTML = `
-            <div style="padding:20px; color:var(--primary);">
-                <i class="fas fa-check-circle fa-3x"></i>
-                <p style="margin-top:10px;">تم تسجيل صوتك بنجاح!</p>
-                <button class="main-btn" onclick="showNextVoter()">التالي ➔</button>
-            </div>
-        `;
+        let actionArea = document.getElementById('voterActionArea');
+        if(actionArea) {
+            actionArea.innerHTML = `
+                <div style="padding:20px; color:var(--primary);">
+                    <i class="fas fa-check-circle fa-3x"></i>
+                    <p style="margin-top:10px;">تم تسجيل صوتك بنجاح!</p>
+                    <button class="main-btn" onclick="showNextVoter()">التالي ➔</button>
+                </div>
+            `;
+        }
     }
     
     function calculateOfflineVoteResult() {
@@ -1171,8 +1699,6 @@
         for(let [player, count] of Object.entries(voteCount)) if(count > maxVotes) { maxVotes = count; accused = player; }
         
         let accusedIndex = activePlayers.indexOf(accused);
-        let currentSpyPlayer = (gameMode === 'offline') ? activePlayers[players.indexOf(players[spyIndex])] : null;
-        // تصحيح مؤشر الجاسوس في الأوفلاين
         let spyName = players[spyIndex];
         let isSpy = (accused === spyName);
         
@@ -1194,13 +1720,18 @@
             }
         }
         
-        document.getElementById('resultsSection').innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3>${Object.entries(voteCount).map(([player, count]) => `<div class="vote-result-row"><span>${player}</span><span class="vote-count">${count} صوت</span></div>`).join('')}<hr><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${accused}</h3><p>${resultMsg}</p></div></div>`;
+        const resultsDiv = document.getElementById('resultsSection');
+        if(resultsDiv) {
+            resultsDiv.innerHTML = `<div class="vote-results"><h3>نتائج التصويت:</h3>${Object.entries(voteCount).map(([player, count]) => `<div class="vote-result-row"><span>${player}</span><span class="vote-count">${count} صوت</span></div>`).join('')}<hr><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${accused}</h3><p>${resultMsg}</p></div></div>`;
+        }
         
         const buttonsDiv = document.getElementById('gameOverButtons');
-        if(gameWinner === 'agents' || gameWinner === 'spy') {
-            buttonsDiv.innerHTML = `<button class="main-btn" onclick="resetGameToHome()">🏠 الرئيسية</button><button class="main-btn" onclick="playAgain()">🔄 لعب مرة أخرى</button>`;
-        } else {
-            buttonsDiv.innerHTML = `<button class="main-btn" onclick="continueAfterVote()">▶️ متابعة الجولة التالية</button>`;
+        if(buttonsDiv) {
+            if(gameWinner === 'agents' || gameWinner === 'spy') {
+                buttonsDiv.innerHTML = `<button class="main-btn" onclick="resetGameToHome()">🏠 الرئيسية</button><button class="main-btn" onclick="playAgain()">🔄 لعب مرة أخرى</button>`;
+            } else {
+                buttonsDiv.innerHTML = `<button class="main-btn" onclick="continueAfterVote()">▶️ متابعة الجولة التالية</button>`;
+            }
         }
         
         navTo('voteResultsPage');
@@ -1236,13 +1767,14 @@
         }
         
         if(gameMode === 'offline') {
-            navTo('gameplay');
-            updatePlayersListDisplay(activePlayers);
-            startTimer(selectedTime);
+            // إعادة تشغيل نظام الأسئلة مع اللاعبين المتبقين
+            players = activePlayers;
+            spyIndex = players.indexOf(currentSpyPlayer);
+            startOfflineQuestionMode();
         } else if(gameMode === 'online') {
             db.ref('rooms/' + currentRoomId).update({ nextRound: true });
             navTo('gameplay');
-            updatePlayersListDisplay(activePlayers);
+            updatePlayersListWithMic(activePlayers);
             startTimer(300);
         }
         isVotingActive = false;
@@ -1250,21 +1782,28 @@
     }
     
     function showVoteResultsScreen(data) {
-        document.getElementById('resultsSection').innerHTML = data.resultsHtml || `<div class="vote-results"><h3>نتائج التصويت:</h3><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${data.accused}</h3><p>${data.resultMsg}</p></div></div>`;
+        const resultsDiv = document.getElementById('resultsSection');
+        if(resultsDiv) {
+            resultsDiv.innerHTML = data.resultsHtml || `<div class="vote-results"><h3>نتائج التصويت:</h3><div style="text-align: center; padding: 15px;"><h3 style="color: var(--primary);">المتهم: ${data.accused}</h3><p>${data.resultMsg}</p></div></div>`;
+        }
         if(data.activePlayers) { activePlayers = data.activePlayers; }
         const buttonsDiv = document.getElementById('gameOverButtons');
-        if(data.gameWinner === 'agents' || data.gameWinner === 'spy') {
-            buttonsDiv.innerHTML = `<button class="main-btn" onclick="resetGameToHome()">🏠 الرئيسية</button><button class="main-btn" onclick="playAgain()">🔄 لعب مرة أخرى</button>`;
-        } else {
-            buttonsDiv.innerHTML = `<button class="main-btn" onclick="continueAfterVote()">▶️ متابعة الجولة التالية</button>`;
+        if(buttonsDiv) {
+            if(data.gameWinner === 'agents' || data.gameWinner === 'spy') {
+                buttonsDiv.innerHTML = `<button class="main-btn" onclick="resetGameToHome()">🏠 الرئيسية</button><button class="main-btn" onclick="playAgain()">🔄 لعب مرة أخرى</button>`;
+            } else {
+                buttonsDiv.innerHTML = `<button class="main-btn" onclick="continueAfterVote()">▶️ متابعة الجولة التالية</button>`;
+            }
         }
         navTo('voteResultsPage');
     }
     
     function leaveOnlineRoom() { 
+        stopMicrophone();
         if(currentRoomId) db.ref('rooms/' + currentRoomId).remove(); 
         currentRoomId = null; navTo('homeScreen'); gameStarted = false; isVotingActive = false; hasEnteredGame = false; hasVoted = false;
         if(voteListener) voteListener();
+        document.getElementById('micMainControlBtn').style.display = 'none';
     }
     
     // ربط الدوال بالنافذة
@@ -1295,6 +1834,9 @@
     window.revealVoterOptions = revealVoterOptions;
     window.saveOfflineVote = saveOfflineVote;
     window.showNextVoter = showNextVoter;
+    window.nextQuestion = nextQuestion;
+    window.catchSpyNow = catchSpyNow;
+    window.toggleMicrophone = toggleMicrophone;
 </script>
 
 <div id="intro" style="position: fixed; inset: 0; background: #000; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: introFadeOut 0.5s forwards; animation-delay: 3.5s;">
