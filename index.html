@@ -1050,7 +1050,7 @@
         container.innerHTML = activePlayers.map(p => {
             let isSpy = (p === spyName);
             return `<div style="display:flex; justify-content:space-between; padding:8px; background:rgba(0,0,0,0.3); margin:5px 0; border-radius:12px;">
-                        <span>${p} ${isSpy ? '🕵️ (جاسوس محتمل)' : ''}</span>
+                        
                     </div>`;
         }).join('');
     }
